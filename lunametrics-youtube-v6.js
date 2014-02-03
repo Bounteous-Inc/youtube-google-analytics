@@ -252,7 +252,9 @@ function onPlayerStateChange(event) {
 	    if (videoArray[j]==videoID) {
 			//apply the true title!
 	        thisVideoTitle = videoTitle[j]||"";
-			console.log(thisVideoTitle);
+			if(window.console){
+				console.log(thisVideoTitle);
+			}
 			//should we have a title, alas naught else
 			if(thisVideoTitle.length>0){
 				if(showTitle==3){
