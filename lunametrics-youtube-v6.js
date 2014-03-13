@@ -58,7 +58,9 @@ var reloadFrames = 0;
 //And Then Lo We Tracked The Frames
 //with hounds ere the dark of knight
 //we sought them to blood our first array
-function trackYouTube()
+
+var LunaMetrics = {};
+LunaMetrics.trackYouTube = function trackYouTube()
 {
 	//What am i, but nothing?
 	var i = 0;
@@ -206,9 +208,9 @@ function getRealTitles(j) {
 //which may cause problems with thy pages
 //should your other elements not comply and load quickly
 //forsooth they are the problem not i
-$(window).load(function() {
-    trackYouTube();
-});
+//$(window).load(function() {
+  //  LunaMetrics.trackYouTube();
+//});
 //Should one wish our monstrous video to play upon load
 //we could set that here. But for us. We shall let it
 //sleep. Sleep video. Await thy time.
@@ -230,14 +232,20 @@ var pauseFlagArray = new Array();
 //When our caged monster wishes to act
 //we are ready to hold it's chains
 //and enslave it to our will.
-function onPlayerStateChange(event) { 
+function onPlayerStateChange(event) {
+    var videoID
+        , thisVideoTitle;
 	//Let us accept the player which was massaged
 	//by the mousey hands of woman or man
+    console.log('LUNAMETRICS:onPlayerStateChange',event,event.target.getVideoUrl())
 	var videoURL = event.target.getVideoUrl();
 	//We must strip from it, the true identity
 	var regex = /v=(.+)$/;
 	var matches = videoURL.match(regex);
+    console.log('LUNAMETRICS','Calculating videoID','matches',matches)
 	videoID = matches[1];
+    console.log('LUNAMETRICS:VIDEOID:',matches,videoID)
+
 	//and prepare for it's true title
 	thisVideoTitle = "";
 	//we look through all the array
@@ -247,7 +255,7 @@ function onPlayerStateChange(event) {
 	//which belies  this approach
 	//Tis a hack? A kludge?
 	//These are fighting words, sir!
-	for (j=0; j<videoArray.length; j++) {
+	for (var j=0; j<videoArray.length; j++) {
 		//tis the video a match?
 	    if (videoArray[j]==videoID) {
 			//apply the true title!
@@ -265,6 +273,7 @@ function onPlayerStateChange(event) {
 			}
 			//Should the video rear it's head
             if (event.data == YT.PlayerState.PLAYING) {
+                console.log('LUNAMETRICS','PLAY')
 				_gaq.push(['_trackEvent', 'Videos', 'Play', thisVideoTitle]); 
         	    //ga('send', 'event', 'Videos', 'Play', thisVideoTitle);
 				//thy video plays
