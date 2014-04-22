@@ -5,7 +5,7 @@
 //Harken version 3 was written during the Polar Vortex
 //Which Struck our fair city lo in January of 2014
 //
-//Performed by LunaMetrics http://www.lunametrics.com @lunametrics 
+//Performed by LunaMetrics http://www.lunametrics.com @lunametrics
 //and Sayf Sharif @sayfsharif
 //With help as noted by additional coders of note and fame
 //inline below whereupon their input was recieved
@@ -20,7 +20,7 @@
 //
 //CURTAIN
 //
-//Forsooth here doth we instantiate thy youtube player api 
+//Forsooth here doth we instantiate thy youtube player api
 //as it was written by the Google
 var tag = document.createElement('script');
 tag.src = "//www.youtube.com/iframe_api";
@@ -55,6 +55,9 @@ var showTitle = 3;
 //which oft works
 var reloadFrames = 0;
 //
+var gaUniversal = ( typeof ga == 'undefined' ? false : true );
+var gaClassic = ( typeof _gaq == 'undefined' ? false : true );
+//
 //And Then Lo We Tracked The Frames
 //with hounds ere the dark of knight
 //we sought them to blood our first array
@@ -65,7 +68,7 @@ function trackYouTube()
 	//Harken to the iframes of the page
 	//thy loathesome demon gallavanting upon
 	//our innocent sweet html
-	jQuery('iframe').each(function() {
+	jQuery('iframe[src*="youtube"]').each(function() {
 		//but what is this?
 		//an iframe! Avast!
 		if($(this).attr('src')){
@@ -83,7 +86,8 @@ function trackYouTube()
 				//has it the foul stench of the demon parameter
 				var regex1 = /(?:https?:)?\/\/www\.youtube\.com\/embed\/([\w-]{11})(\?)?/;
 				var SourceCheckA = vidSrc.match(regex1);
-				if(SourceCheckA[2]=="?"){
+				if(typeof SourceCheckA !== 'undefined' && typeof SourceCheckA[2] !== 'undefined' && SourceCheckA[2]=="?") {
+
 					//it has the beast
 					//we must be cautious
 					//has it been thus gifted for jsapi magic?
@@ -93,7 +97,7 @@ function trackYouTube()
 						//it has the gift
 						//accept it and move on
 					}else{
-						//we shall embrace our foe 
+						//we shall embrace our foe
 						//and provide it with stardust
 						vidSrc = vidSrc + "&enablejsapi=1";
 					}
@@ -112,7 +116,7 @@ function trackYouTube()
 					}else{
 						//but nay it was homeless
 						//sad and alone
-						//we shall embrace it and drape it 
+						//we shall embrace it and drape it
 						//in our warm cloth
 						vidSrc = vidSrc + "&origin=" + window.location.hostname;
 					}
@@ -125,7 +129,7 @@ function trackYouTube()
 				}
 				//We reaffirm the source unto itself
 				//tho it may cause a stutter
-				//silence the next line should you incorporate 
+				//silence the next line should you incorporate
 				//no magic or origins
 				video.attr('src', vidSrc);
 			}
@@ -149,19 +153,19 @@ function trackYouTube()
 				//and then mark the vile iframe beast
 				//with the id of this video so that all
 				//may know it, and reference it
-				video.attr('id', matches[1]);	
+				video.attr('id', matches[1]);
 				//And Then Alex Moore came forth
 				//and said 'lo this ID is a jumble
 				//we should provide a more meaningful title
 				//soas to tell the nobles from the brigands
-				//as we now can through my faithful 
-				//json. Attend and be amazed!				
+				//as we now can through my faithful
+				//json. Attend and be amazed!
 				getRealTitles(i);
 				//And for this, I am no longer nothing, I am more
-				i++;			
+				i++;
 			}
 		}
-	});	
+	});
 }
 //To obtain the real titles of our noble videos
 //rather than the gibberish jumble
@@ -173,10 +177,10 @@ function getRealTitles(j) {
 		    events: {
 			    'onStateChange': onPlayerStateChange
 			}
-		});	
+		});
 	}else{
 		//We pray into the ether
-		//harken oh monster of youtube 
+		//harken oh monster of youtube
 		//tell us the truth of this noble video
 	    var tempJSON = $.getJSON('http://gdata.youtube.com/feeds/api/videos/'+videoArray[j]+'?v=2&alt=json',function(data,status,xhr){
 			//and lo the monster repsonds
@@ -230,7 +234,7 @@ var pauseFlagArray = new Array();
 //When our caged monster wishes to act
 //we are ready to hold it's chains
 //and enslave it to our will.
-function onPlayerStateChange(event) { 
+function onPlayerStateChange(event) {
 	//Let us accept the player which was massaged
 	//by the mousey hands of woman or man
 	var videoURL = event.target.getVideoUrl();
@@ -240,6 +244,7 @@ function onPlayerStateChange(event) {
 	videoID = matches[1];
 	//and prepare for it's true title
 	thisVideoTitle = "";
+
 	//we look through all the array
 	//which at first glance may seem unfocused
 	//but tis the off kilter response
@@ -265,23 +270,36 @@ function onPlayerStateChange(event) {
 			}
 			//Should the video rear it's head
             if (event.data == YT.PlayerState.PLAYING) {
-				_gaq.push(['_trackEvent', 'Videos', 'Play', thisVideoTitle]); 
-        	    //ga('send', 'event', 'Videos', 'Play', thisVideoTitle);
+    			if( gaUniversal ) {
+					ga('send', 'event', {'eventCategory':'Videos','eventAction':'Play','eventLabel':thisVideoTitle});
+    			}
+    			if( gaClassic ) {
+					_gaq.push(['_trackEvent', 'Videos', 'Play', thisVideoTitle]);
+				}
 				//thy video plays
 				//reaffirm the pausal beast is not with us
         		pauseFlagArray[j] = false;
-        	} 
+        	}
 			//should the video tire out and cease
         	if (event.data == YT.PlayerState.ENDED){
-				_gaq.push(['_trackEvent', 'Videos', 'Watch to End', thisVideoTitle]); 
-        		//ga('send', 'event', 'Videos', 'Watch to End', thisVideoTitle);
-        	} 
+    			if( gaUniversal ) {
+    				ga('send', 'event', {'eventCategory':'Videos','eventAction':'Watch to End','eventLabel':thisVideoTitle});
+    			}
+    			if( gaClassic ) {
+					_gaq.push(['_trackEvent', 'Videos', 'Watch to End', thisVideoTitle]);
+				}
+        	}
 			//and should we tell it to halt, cease, heal.
 			//confirm the pause has but one head and it flies not its flag
 			//lo the pause event will spawn a many headed monster
 			//with events overflowing
         	if (event.data == YT.PlayerState.PAUSED && pauseFlagArray[j] != true){
-				_gaq.push(['_trackEvent', 'Videos', 'Pause', thisVideoTitle]); 
+    			if( gaUniversal ) {
+    				ga('send', 'event', {'eventCategory':'Videos','eventAction':'Pause','eventLabel':thisVideoTitle});
+    			}
+    			if( gaClassic ) {
+					_gaq.push(['_trackEvent', 'Videos', 'Pause', thisVideoTitle]);
+				}
         		//ga('send', 'event', 'Videos', 'Pause', thisVideoTitle);
 				//tell the monster it may have
 				//but one head
@@ -290,17 +308,25 @@ function onPlayerStateChange(event) {
 			//and should the monster think, before it doth play
 			//after we command it to move
         	if (event.data == YT.PlayerState.BUFFERING){
-				_gaq.push(['_trackEvent', 'Videos', 'Buffering', thisVideoTitle]); 
-        		//ga('send', 'event', 'Videos', 'Buffering', thisVideoTitle);
+    			if( gaUniversal ) {
+    				ga('send', 'event', {'eventCategory':'Videos','eventAction':'Buffering','eventLabel':thisVideoTitle});
+    			}
+    			if( gaClassic ) {
+					_gaq.push(['_trackEvent', 'Videos', 'Buffering', thisVideoTitle]);
+				}
         	}
 			//and should it cue
 			//for why not track this as well.
         	if (event.data == YT.PlayerState.CUED){
-				_gaq.push(['_trackEvent', 'Videos', 'Cueing', thisVideoTitle]); 
-        		//ga('send', 'event', 'Videos', 'Cueing', thisVideoTitle);
+    			if( gaUniversal ) {
+    				ga('send', 'event', {'eventCategory':'Videos','eventAction':'Cueing','eventLabel':thisVideoTitle});
+    			}
+    			if( gaClassic ) {
+					_gaq.push(['_trackEvent', 'Videos', 'Cueing', thisVideoTitle]);
+				}
         	}
 
 	    }
 	}
-} 
+}
 //fin
