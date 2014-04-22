@@ -68,7 +68,7 @@ function trackYouTube()
 	//Harken to the iframes of the page
 	//thy loathesome demon gallavanting upon
 	//our innocent sweet html
-	jQuery('iframe').each(function() {
+	jQuery('iframe[src*="youtube"]').each(function() {
 		//but what is this?
 		//an iframe! Avast!
 		if($(this).attr('src')){
@@ -86,7 +86,8 @@ function trackYouTube()
 				//has it the foul stench of the demon parameter
 				var regex1 = /(?:https?:)?\/\/www\.youtube\.com\/embed\/([\w-]{11})(\?)?/;
 				var SourceCheckA = vidSrc.match(regex1);
-				if(SourceCheckA[2]=="?"){
+				if(typeof SourceCheckA !== 'undefined' && typeof SourceCheckA[2] !== 'undefined' && SourceCheckA[2]=="?") {
+
 					//it has the beast
 					//we must be cautious
 					//has it been thus gifted for jsapi magic?
