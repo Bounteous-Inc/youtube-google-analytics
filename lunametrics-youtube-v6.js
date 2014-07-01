@@ -68,11 +68,11 @@ function trackYouTube()
 	jQuery('iframe').each(function() {
 		//but what is this?
 		//an iframe! Avast!
-		if($(this).attr('src')){
+		if(jQuery(this).attr('src')){
 			//it has a source!
 			//Lo we can see it's innards
 			//as Han was wont to slice the tauntaun
-			var video = $(this);
+			var video = jQuery(this);
 			var vidSrc = video.attr('src');
 			//by default we shant do the following
 			//but if your tracking seems to suffer
@@ -178,7 +178,7 @@ function getRealTitles(j) {
 		//We pray into the ether
 		//harken oh monster of youtube 
 		//tell us the truth of this noble video
-	    var tempJSON = $.getJSON('http://gdata.youtube.com/feeds/api/videos/'+videoArray[j]+'?v=2&alt=json',function(data,status,xhr){
+	    var tempJSON = jQuery.getJSON('http://gdata.youtube.com/feeds/api/videos/'+videoArray[j]+'?v=2&alt=json',function(data,status,xhr){
 			//and lo the monster repsonds
 			//it's whispers flowing as mist
 			//through the mountain crag
@@ -206,7 +206,7 @@ function getRealTitles(j) {
 //which may cause problems with thy pages
 //should your other elements not comply and load quickly
 //forsooth they are the problem not i
-$(window).load(function() {
+jQuery(window).load(function() {
     trackYouTube();
 });
 //Should one wish our monstrous video to play upon load
@@ -252,7 +252,9 @@ function onPlayerStateChange(event) {
 	    if (videoArray[j]==videoID) {
 			//apply the true title!
 	        thisVideoTitle = videoTitle[j]||"";
-			console.log(thisVideoTitle);
+			if(window.console){
+				console.log(thisVideoTitle);
+			}
 			//should we have a title, alas naught else
 			if(thisVideoTitle.length>0){
 				if(showTitle==3){
