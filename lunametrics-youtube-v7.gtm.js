@@ -161,18 +161,6 @@
     // Put it all together and send it back
     a.pathname = tmpPathname;
     youTubeVideo.src        = a.href + a.hash;
-    youTubeVideo.pauseFlag  = false;
-
-    // Playlists will emit extra events we don't want to
-    // track between videos. These properties are added
-    // when we detect a playlsit parameter and used later
-    // in the checkIfEventShouldFire function
-    if( a.search.indexOf( 'playlist=' ) > -1 ) {
-
-      youTubeVideo.playlist = true;
-      youTubeVideo.watchToEndCount = 0;
-
-    }
 
     // Send back our retrofitted video object
     // to be decorated with events
@@ -189,6 +177,20 @@
   * @param iframe object
   */
   function addYouTubeEvents( youTubeIframe ) {
+
+    // Set an initial state for a flag we'll use later
+    youTubeIframe.pauseFlag  = false;
+
+    // Playlists will emit extra events we don't want to
+    // track between videos. These properties are added
+    // when we detect a playlist parameter and used later
+    // in the checkIfEventShouldFire function
+    if( youTubeIframe.src.indexOf( 'playlist=' ) > -1 ) {
+
+      youTubeIframe.playlist = true;
+      youTubeIframe.watchToEndCount = 0;
+
+    }
     
     // Create a locally scoped new YT.Player for each iframe
     var player = new YT.Player( youTubeIframe, {
