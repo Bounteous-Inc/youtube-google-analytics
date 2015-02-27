@@ -178,7 +178,7 @@ function getRealTitles(j) {
 		//We pray into the ether
 		//harken oh monster of youtube 
 		//tell us the truth of this noble video
-	    var tempJSON = $.getJSON('http://gdata.youtube.com/feeds/api/videos/'+videoArray[j]+'?v=2&alt=json',function(data,status,xhr){
+	    var tempJSON = $.getJSON('https://gdata.youtube.com/feeds/api/videos/'+videoArray[j]+'?v=2&alt=json',function(data,status,xhr){
 			//and lo the monster repsonds
 			//it's whispers flowing as mist
 			//through the mountain crag
