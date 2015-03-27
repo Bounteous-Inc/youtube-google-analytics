@@ -1,20 +1,5 @@
-/**
- * LunaMetrics Google Analytics YouTube Tracking
- * Uses the YouTube Iframe API to fire events
- * to Google Analytics. Supports Google Tag Manager
- * and IE8+ and tracks all YouTube videos available 
- * on the page at the time of loading.
- * 
- * WARNING: Overwrites older <embed> style players
- * and reloads improperly formatted <iframe> players
- */
-
-// Put everything into an IIFE to prevent scope pollution
-// and run the script automatically.
 ( function( document, window, config ) {
 
-  // Check if something else already has bound to the onYouTubeIframeAPIReady callback
-  // If it has, throw an error so we can see something's wrong
   if( typeof window.onYouTubeIframeAPIReady !== 'undefined' ) {
 
     var err = new Error( 'There is already a function defined at window.onYouTubeIframeAPIReady; aborting LunaMetrics Google Analytics YouTube Tracking', 'lunametrics-youtube.js' );
@@ -22,17 +7,8 @@
 
   }
   
-  // If there is no config defined, make a blank one
-  var config = typeof config === 'object' ? config : {};
-
-  // Manually specify a version of GA to use
-  // default behavior is to fallback from GTM
-  // down to Classic.
-  // 1 === Universal Analytics
-  // 2 === Classic (Asynchronous) Analytics
-  var gaTypeOverride = config.gaTypeOverride || 0;
-
-  // Default events fired (Only applies to Universal and Classic)
+  var config             = typeof config === 'object' ? config : {};
+  var gaTypeOverride     = config.gaTypeOverride || 0;
   var defaultEventsFired = config.defaultEventsFired ||  {
 
     'Unstarted'   : false,
@@ -43,9 +19,12 @@
     'Cueing'      : false
 
   };
+  
+  //*****//
+  // DO NOT EDIT ANYTHING BELOW THIS LINE EXCEPT "OPT_CONFIG_OBJ"
+  //*****//
 
-  // This method is invoked by the YouTube API once it has
-  // finished loading
+  // Invoked by the YouTube API when it's ready
   window.onYouTubeIframeAPIReady = function() {
 
     var iframes = document.getElementsByTagName( 'iframe' );
@@ -56,13 +35,11 @@
 
   };
 
-  // Load the YouTube API; If it is already loaded, browser will reference that
   var tag            = document.createElement( 'script' );
   tag.src            = '//www.youtube.com/iframe_api';
   var firstScriptTag = document.getElementsByTagName( 'script' )[0];
   firstScriptTag.parentNode.insertBefore( tag, firstScriptTag );
 
-  // This object maps the numbers emitted by events from the API to string 'states'
   var playerStatesIndex = {
 
     '-1': 'Unstarted',
@@ -74,18 +51,11 @@
 
   };
 
-  /**
-   * Process list of potential videos and hand qualified
-   * objects to be uniformly formatted and attach
-   * our events to them
-   *
-   * @param potentialVideos array objects
-   */
+  // Take our videos and turn them into trackable videos with events
   function digestPotentialVideos( potentialVideos ) {
 
     for( var i = 0; i < potentialVideos.length; i++ ) {
 
-      // Returns true if the HTML elements src attribute indicates a YouTube video
       var isYouTubeVideo = checkIfYouTubeVideo( potentialVideos[ i ] );
 
       if( isYouTubeVideo ) {
@@ -99,24 +69,13 @@
 
   }
 
-  /**
-   * Checks if the object has an href that a 
-   * YouTube video would have, and returns
-   * true or false if it finds a match
-   *
-   * @param potentialYouTubeVideo object
-   * @return true or false
-   */
+  // Determine if the element is a YouTube video or not
   function checkIfYouTubeVideo( potentialYouTubeVideo ) {
 
-    // Fallback to '' if there is no src attribute, so our test
-    // won't fail because src is undefined
     var potentialYouTubeVideoSrc = potentialYouTubeVideo.src || '';
 
-    // If the video or embed src attribute references the URLs for
-    // YouTube embeds, return true, otherwise return false
-    if( potentialYouTubeVideo.src.indexOf( 'youtube.com/embed/' ) > -1 || 
-        potentialYouTubeVideo.src.indexOf( 'youtube.com/v/' ) > -1 ) {
+    if( potentialYouTubeVideoSrc.indexOf( 'youtube.com/embed/' ) > -1 || 
+        potentialYouTubeVideoSrc.indexOf( 'youtube.com/v/' ) > -1 ) {
 
       return true;
 
@@ -126,45 +85,30 @@
 
   }
 
-  /**
-   * Checks if the YouTube video has all the required parameters for tracking,
-   * and if it does not, it reloads it with the appropriate parameters. It will
-   * reload videos that do not have the correct parameters and destroy old-style
-   * <object> embeds and replace them with an <iframe>
-   * WARNING: This may cause the video to briefly flicker on the page
-   *
-   * @param video iframe or embed
-   * @return video object reference
-   */
+  // Turn <embeds> into <iframes> and ensure they have the right parameters
   function normalizeYouTubeIframe( youTubeVideo ) {
 
-    // Create a fake <a> element to use the HREF apis and extract
-    // our pathname, protocol, et. al.
     var a           = document.createElement( 'a' );
         a.href      = youTubeVideo.src;
         a.hostname  = 'www.youtube.com';
         a.protocol  = document.location.protocol;
-        tmpPathname = a.pathname.charAt( 0 ) === '/' ? a.pathname : '/' + a.pathname;  // IE10 shim
+    var tmpPathname = a.pathname.charAt( 0 ) === '/' ? a.pathname : '/' + a.pathname;  // IE10 shim
+    
     // For security reasons, YouTube wants an origin parameter set that matches our hostname
     var origin = window.location.protocol + '%2F%2F' + window.location.hostname;
 
-    // If enablejsapi=1 isn't present in our URL, we need to add it,
-    // otherwise the YouTube iframe script won't try and track the video
     if( a.search.indexOf( 'enablejsapi' ) === -1 ) {
 
       a.search = a.search.length > 0 ? a.search + '&enablejsapi=1' : a.search = 'enablejsapi=1&origin=' + origin;
 
     }
 
-    // If the origin= parameter isn't set to document.hostname, the
-    // YouTube tracking script will throw origin errors
     if( a.search.indexOf( 'origin' ) === -1 ) {
 
       a.search = a.search + '&origin=' + origin;
 
     }
 
-    // If our video is actually a flash object, transform it to an iframe
     if( youTubeVideo.type === 'application/x-shockwave-flash' ) {
 
       var newIframe     = document.createElement( 'iframe' );
@@ -173,40 +117,25 @@
 
       tmpPathname = '/embed/' + youTubeVideo.videoId;
 
-      // Replace our old <object> in the DOM with our new iframe
       youTubeVideo.parentNode.parentNode.replaceChild( newIframe, youTubeVideo.parentNode );
 
       youTubeVideo = newIframe;
 
     }
 
-    // Put it all together and send it back
     a.pathname       = tmpPathname;
     youTubeVideo.src = a.href + a.hash;
 
-    // Send back our retrofitted video object
-    // to be decorated with events
     return youTubeVideo;
 
   }
 
-  /**
-   * Creates a new Player object for each video
-   * detected on the page and binds to the onStateChange
-   * event emitted  by the YouTube API and checks if we
-   * should emit the event to Google Analytics.
-   * 
-   * @param iframe object
-   */
+  // Add event handlers for events emitted by the YouTube API
   function addYouTubeEvents( youTubeIframe ) {
 
-    // Set an initial state for a flag we'll use later
     youTubeIframe.pauseFlag  = false;
 
-    // Playlists will emit extra events we don't want to
-    // track between videos. These properties are added
-    // when we detect a playlist parameter and used later
-    // in the checkIfEventShouldFire function
+    // Playlists event garbage events; this handles those
     if( youTubeIframe.src.indexOf( 'playlist=' ) > -1 ) {
 
       youTubeIframe.playlist = true;
@@ -214,14 +143,12 @@
 
     }
     
-    // Create a locally scoped new YT.Player for each iframe
-    var player = new YT.Player( youTubeIframe, {
+    new YT.Player( youTubeIframe, {
 
       events: {
 
         onStateChange: function( evt ) {
 
-          // Create a closure with our handler, event, and youTubeIframe
           onStateChangeHandler( evt, youTubeIframe );
 
         }
@@ -230,34 +157,25 @@
 
     } );
 
-  };
+  }
 
-  /**
-   * Function we bind to the onStateChange event from the YouTube API
-   *
-   * @param evt object
-   * @param iframe object
-   */
+  // Event handler for events emitted from the YouTube API
   function onStateChangeHandler( evt, youTubeIframe ) {
 
-    var state          = playerStatesIndex[ evt.data ];  // Determine state text from event number
-    var targetVideoUrl = evt.target.getVideoUrl();       // Get the URL that the event targes
-    var targetVideoId  = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
-    // Determine if we should fire an event at all
+    var state           = playerStatesIndex[ evt.data ];
+    var targetVideoUrl  = evt.target.getVideoUrl();
+    var targetVideoId   = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
     var shouldEventFire = checkIfEventShouldFire( evt.data, youTubeIframe );
-    // Update flags depending on current state
     interpretState( evt.data, youTubeIframe );  
 
     if( shouldEventFire ) {
 
-      // Fetch the Video Title, or fallback to the Video ID
       getVideoTitle( youTubeIframe, targetVideoId, function( videoTitle ) {          
   
-        // Reassign our title and ID, in case they change
         youTubeIframe.videoTitle = videoTitle;
         youTubeIframe.videoId    = targetVideoId;
 
-        fireAnalyticsEvent( youTubeIframe, state )
+        fireAnalyticsEvent( youTubeIframe, state );
         
       } );
 
@@ -265,18 +183,11 @@
 
   }
 
-  /**
-   * Function that fires our event to Google Analytics
-   *
-   * @param iframe object
-   * @param state number
-   */
+  // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( youTubeIframe, state ) {
 
-    // If there is a dataLayer and there is no override set    
     if( typeof window.dataLayer !== 'undefined' && !gaTypeOverride ) { 
 
-    // Send an event to the dataLayer with our event info
       window.dataLayer.push( {
 
         'event'     : 'youTubeTrack',
@@ -289,19 +200,14 @@
 
       } );
 
-    // If the state is one we want to send an event for
     } else if( defaultEventsFired[ state ] ) {
 
-      // If we detect the Universal library is loaded and the override doesn't specify Classic
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && gaTypeOverride !== 2 ) {
 
-        // Fire a Universal Analytics event
         window.ga( 'send', 'event', 'Videos', state );
 
-      // If we detect the Classic library is loaded and the override doesn't specify Universal
       } else if( typeof window._gaq !== 'undefined' && gaTypeOverride !== 1 ) {
 
-        // Fire a Classic Analytics event
         window._gaq.push( [ '_trackEvent', 'Videos', state ] );
 
       }
@@ -310,43 +216,23 @@
 
   }
 
-  /**
-   * Fetch the video title from the YouTube data API,
-   * then invoke the callback function passed in as an
-   * argument, passing it the videos title. If the AJAX 
-   * request fails, we pass back the video ID instead.
-   * Timeout is set at 5 seconds to prevent getting
-   * stuck waiting for the response to come back.
-   *
-   * @param video object
-   * @param targetVideoId string
-   * @param callback object
-   */
+  // Get the title of our video
   function getVideoTitle( video, targetVideoId, callback ) {
 
-    // Playlists reference the ID of the NEXT video in the list
-    // when firing the Watch To End event. We use video.lockVideoTitle
-    // to prevent accidentally switching titles. We set the lock in our
-    // interpretState function.
     if( video.videoId !== targetVideoId && !video.lockVideoTitle ) {
 
-      // Fallback timer in case something goes wrong with our AJAX request
       var timeoutCounter = setTimeout( function( targetVideoId ) { 
 
         callback( targetVideoId ); 
 
       }, 5000 );
 
-      // If we detect the videoTitle is still the videoId,
-      // try and get the title instead, then call our callback function
       ajax( "//gdata.youtube.com/feeds/api/videos/" + targetVideoId + "?v=2&alt=json", function( responseText ) {
   
         var data = eval( '[' + responseText + ']' );
 
-        // Let's make sure we've got actual data, not garbage
         if( typeof data === 'object' && data.length > 0 ) {
 
-          // Clear our fallback timer
           clearTimeout( timeoutCounter );
           callback( data[0].entry.title.$t );
 
@@ -356,51 +242,35 @@
 
     } else {
 
-      // If we're still on the same title, proceed to our callback
       callback( video.videoTitle );
 
     }
 
   }
 
-  /**
-   * Function that checks the state of our iframes attributes
-   * and the latest event emitted by the API to determine
-   * whether we want to fire an event or not. Handles many
-   * wrinkles in YouTube iframe API.
-   *
-   * @param stateIndex number
-   * @param iframe object
-   * @return true or false
-   */
+  // Determine if we should fire a Google Analytics/GTM event when a YouTube 
+  // event is emitted
   function checkIfEventShouldFire( stateIndex, youTubeIframe ) {
 
     if( stateIndex === 0 ) {
 
-      // Edge case for playlists; playlists emit
-      // Unstarted, Buffering, Watch To End
-      // between video loads
+      // Edge case for playlists
       if( youTubeIframe.playlist ) {
         
-        youTubeIframe.watchToEndCount++
+        youTubeIframe.watchToEndCount++;
 
       }
 
     }
 
     // Edge case handler for playlists
-    // Playlists emit Unstarted, Buffering, Watch to End
-    // Between videos. This counts the number of watch to ends
-    // within the iframe and only fires events on odd counts
     if( youTubeIframe.playlist && youTubeIframe.watchToEndCount % 2 === 1 ) {
 
       return false;
 
     }
 
-    // If we see a PAUSE event, but the video wasn't
-    // playing, ignore it. This prevents event spam
-    // from moving the scrobbler along the video
+    // If we see a PAUSE event, but the video wasn't playing, ignore it
     if( stateIndex === 2 && youTubeIframe.pauseFlag ) {
 
       return false;
@@ -411,49 +281,29 @@
 
   }
 
-  /**
-   * Adjusts the iframes playback attributes
-   * depending on the state of the player and
-   * the event emitted from the YouTube API
-   *
-   * @param stateIndex number
-   * @param iframe object
-   */
+  // Interpret the state passed by the YouTube event
   function interpretState( stateIndex, youTubeIframe ) {
   
-    // Playlists reference NEXT video in the playlist
-    // when firing the Watch To End event, so we lock
-    // it before the getVideoTitle function fires to
-    // keep our title the same. On any other hit type,
-    // we can unlock the title so that it will change
+    // Playlists edge case handler
     if( youTubeIframe.lockVideoTitle ) {
 
       youTubeIframe.lockVideoTitle = false;
 
     }
   
-    // Playlists reference NEXT video in the playlist
-    // when firing the Watch To End event, so we lock
-    // it before the getVideoTitle function fires to
-    // keep our title the same
+    // Playlist edge case handler
     if( stateIndex === 0 ) {
   
       youTubeIframe.lockVideoTitle = true; 
 
     }
 
-    // Users can accidentally fire pause events
-    // so we set a flag when a Pause event is fired
     if( stateIndex === 2 ) {
 
       youTubeIframe.pauseFlag = true;
 
     }
 
-    // Users can accidentally fire pause events
-    // so we set a flag when a Play event is fired
-    // We won't fire a pause event unless the
-    // play event was set
     if( stateIndex === 1 ) {
 
       youTubeIframe.pauseFlag = false;
@@ -462,23 +312,11 @@
 
   }
 
-  /**
-   * Utility: IE 8+, Firefox, Opera, Chrome, Safari XDR object
-   *
-   * modified from code courtesy github user xeoncross
-   * https://gist.github.com/Xeoncross/7663273 
-   * @param string url
-   * @param object callback
-   * @param mixed data
-   * @param null x
-   */
-  // Modified to remove headers causing CORS errors
-  // Modified to use XDomainRequest
-  // IE>8 does not support XDomainRequests
+  // Utility for making AJAX calls
   function ajax(url, callback, data, x) {
 
     try {
-      // Cross-browser hoop for IE8 & IE9
+
       if( 'XDomainRequest' in window && window.XDomainRequest !== null ) {
 
         var x = new XDomainRequest();
@@ -491,7 +329,7 @@
             x.send();
 
       } else {
-        // Cross-Browser hoop for IE8 & IE9
+
         var x = new(this.XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
             x.open('GET', url, 1);
             x.onreadystatechange = function () {
@@ -499,17 +337,17 @@
               x.readyState > 3 && callback && callback(x.responseText, x);
 
             };
-            x.send(data)
+            x.send(data);
 
       }
 
     } catch (e) {
-      // If we can't invoke our call, log it to console
+
       window.console && console.log(e.message);
 
     }
 
-  };
+  }
     
 } )( document, window, "OPT_CONFIG_OBJ" );
 /**
