@@ -233,6 +233,8 @@ var pauseFlagArray = new Array();
 function onPlayerStateChange(event) { 
 	//Let us accept the player which was massaged
 	//by the mousey hands of woman or man
+	var videoID
+        , thisVideoTitle;
 	var videoURL = event.target.getVideoUrl();
 	//We must strip from it, the true identity
 	var regex = /v=(.+)$/;
@@ -247,7 +249,7 @@ function onPlayerStateChange(event) {
 	//which belies  this approach
 	//Tis a hack? A kludge?
 	//These are fighting words, sir!
-	for (j=0; j<videoArray.length; j++) {
+	for (var j=0; j<videoArray.length; j++) {
 		//tis the video a match?
 	    if (videoArray[j]==videoID) {
 			//apply the true title!
