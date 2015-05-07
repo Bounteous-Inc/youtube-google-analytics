@@ -31,14 +31,14 @@ If you are **not** using Google Tag Manager to fire your Google Analytics code, 
 - Pause events
 - Watch to End events
 
-To change which events are fired, edit the configuration at the end of the script. For example, if you'd like to fire Buffering events:
+To change which events are fired, edit the events property of the configuration at the end of the script. For example, if you'd like to fire Buffering events:
 
     ( function( document, window, config ) {
     
        // ... the tracking code
 
     } )( document, window, {
-      'defaultEventsFired': {
+      'events': {
         'Play': true,
         'Pause': true,
         'Watch to End': true,
@@ -50,14 +50,14 @@ The available events are **Play, Pause, Watch to End, Buffering, Unstarted, and 
 
 #### Forcing Universal or Classic Analytics
 
-By default, the plugin will try and fire Data Layer events, then fallback to Univeral Analytics events, then fallback to Classic Analytics events. If you want to force the script to use a particular syntax for your events, you can set the 'gaTypeOverride' property of the configuration object to an integer:
+By default, the plugin will try and fire Data Layer events, then fallback to Univeral Analytics events, then fallback to Classic Analytics events. If you want to force the script to use a particular syntax for your events, you can set the 'forceSyntax' property of the configuration object to an integer:
     
     ( function( document, window, config ) {
     
        // ... the tracking code
 
     } )( document, window, {
-        'gaTypeOverride': 1
+        'forceSyntax': 1
       }
     } );
 

@@ -7,9 +7,9 @@
 
   }
   
-  var config             = typeof config === 'object' ? config : {};
-  var gaTypeOverride     = config.gaTypeOverride || 0;
-  var defaultEventsFired = config.defaultEventsFired ||  {
+  var config      = typeof config === 'object' ? config : {};
+  var forceSyntax = config.forceSyntax || 0;
+  var eventsFired = config.events ||  {
 
     'Unstarted'   : false,
     'Watch to End': true,
@@ -167,17 +167,25 @@
     var targetVideoId   = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
     var shouldEventFire = checkIfEventShouldFire( evt.data, youTubeIframe );
     interpretState( evt.data, youTubeIframe );  
-
+    
     if( shouldEventFire ) {
+ 
+      if( youTubeIframe.videoId !== targetVideoId && !youTubeIframe.lockVideoTitle ) {
 
-      getVideoTitle( youTubeIframe, targetVideoId, function( videoTitle ) {          
-  
-        youTubeIframe.videoTitle = videoTitle;
-        youTubeIframe.videoId    = targetVideoId;
+        if( evt.target && evt.target.getVideoData ) {
 
-        fireAnalyticsEvent( youTubeIframe, state );
-        
-      } );
+          youTubeIframe.videoName = evt.target.getVideoData().title || targetVideoId;
+
+        } else {
+
+          youTubeIframe.videoName = targetVideoId;
+
+        }
+
+      }
+
+      youTubeIframe.videoId = targetVideoId;
+      fireAnalyticsEvent( youTubeIframe, state);
 
     }
 
@@ -186,65 +194,33 @@
   // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( youTubeIframe, state ) {
 
-    var videoName = youTubeIframe.videoTitle;
+    var videoName = youTubeIframe.videoName;
 
-    if( typeof window.dataLayer !== 'undefined' && !gaTypeOverride ) { 
+    if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
 
       window.dataLayer.push( {
 
         'event'     : 'youTubeTrack',
         'attributes': {
 
-          'videoName'  : videoTitle,
+          'videoName'  : videoName,
           'videoAction': state
 
         }
 
       } );
 
-    } else if( defaultEventsFired[ state ] ) {
+    } else if( eventsFired[ state ] ) {
 
-      if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && gaTypeOverride !== 2 ) {
+      if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state, videoTitle, 0, false );
+        window.ga( 'send', 'event', 'Videos', state, videoName, 0, false );
 
-      } else if( typeof window._gaq !== 'undefined' && gaTypeOverride !== 1 ) {
+      } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-        window._gaq.push( [ '_trackEvent', 'Videos', state, videoTitle ] );
+        window._gaq.push( [ '_trackEvent', 'Videos', state, videoName ] );
 
       }
-
-    }
-
-  }
-
-  // Get the title of our video
-  function getVideoTitle( video, targetVideoId, callback ) {
-
-    if( video.videoId !== targetVideoId && !video.lockVideoTitle ) {
-
-      var timeoutCounter = setTimeout( function( targetVideoId ) { 
-
-        callback( targetVideoId ); 
-
-      }, 5000 );
-
-      ajax( "//gdata.youtube.com/feeds/api/videos/" + targetVideoId + "?v=2&alt=json", function( responseText ) {
-  
-        var data = eval( '[' + responseText + ']' );
-
-        if( typeof data === 'object' && data.length > 0 ) {
-
-          clearTimeout( timeoutCounter );
-          callback( data[0].entry.title.$t );
-
-        }
-
-      } );
-
-    } else {
-
-      callback( video.videoTitle );
 
     }
 
@@ -313,54 +289,17 @@
     }
 
   }
-
-  // Utility for making AJAX calls
-  function ajax(url, callback, data, x) {
-
-    try {
-
-      if( 'XDomainRequest' in window && window.XDomainRequest !== null ) {
-
-        var x = new XDomainRequest();
-            x.open('GET', url, 1);
-            x.onload = function() {
-
-              callback(x.responseText, x);
-
-            };
-            x.send();
-
-      } else {
-
-        var x = new(this.XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
-            x.open('GET', url, 1);
-            x.onreadystatechange = function () {
-
-              x.readyState > 3 && callback && callback(x.responseText, x);
-
-            };
-            x.send(data);
-
-      }
-
-    } catch (e) {
-
-      window.console && console.log(e.message);
-
-    }
-
-  }
     
 } )( document, window, "OPT_CONFIG_OBJ" );
 /**
  * "OPT_CONFIG_OBJ" can be replaced with an object
  * to modify default behavior
  *
- * @property gaTypeOverride number
+ * @property forceSyntax int
  * Forces script to use Classic (2) or Universal(1)
  * Default: 0
  *
- * @property defaultEventsFired object
+ * @property events object
  * Defines which events emitted by YouTube API
  * will be turned into Classic or Universal events
  * Default: {
