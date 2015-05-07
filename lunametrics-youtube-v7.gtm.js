@@ -186,6 +186,8 @@
   // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( youTubeIframe, state ) {
 
+    var videoName = youTubeIframe.videoTitle;
+
     if( typeof window.dataLayer !== 'undefined' && !gaTypeOverride ) { 
 
       window.dataLayer.push( {
@@ -193,7 +195,7 @@
         'event'     : 'youTubeTrack',
         'attributes': {
 
-          'videoName'  : youTubeIframe.videoTitle,
+          'videoName'  : videoTitle,
           'videoAction': state
 
         }
@@ -204,11 +206,11 @@
 
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && gaTypeOverride !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state );
+        window.ga( 'send', 'event', 'Videos', state, videoTitle, 0, false );
 
       } else if( typeof window._gaq !== 'undefined' && gaTypeOverride !== 1 ) {
 
-        window._gaq.push( [ '_trackEvent', 'Videos', state ] );
+        window._gaq.push( [ '_trackEvent', 'Videos', state, videoTitle ] );
 
       }
 
