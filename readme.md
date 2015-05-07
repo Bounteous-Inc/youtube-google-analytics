@@ -104,7 +104,7 @@ Create your Google Analytics Event tag
     - Fire On: More
         - Choose from existing Triggers: YouTube Video Event
 
-#### Tracking certain events
+#### Configuring Which Events Fire
 
 You can reconfigure the YouTube Video Event trigger anytime you'd like to track more of the events included, such as Cueing or Buffering. Remember that GTM events are not Google Analytics Events, and whether a GTM event sends data to Google Analytics is entirely up to how your Triggers are configured.
 
