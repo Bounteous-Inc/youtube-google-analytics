@@ -26,6 +26,8 @@ Create a new Custom HTML tag and paste in the below:
 
 In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste in the contents of the lunametrics-youtube-v7.gtm.js script, found [here](https://raw.githubusercontent.com/lunametrics/youtube-google-analytics/master/lunametrics-youtube-v7.gtm.js).
 
+**You need to add a Google Analytics Event tag that acts upon the pushes to the Data Layer the plugin executes.** Follow the steps in the [Google Tag Manager Configuration](#google-tag-manager-configuration) section for help on getting this set up.
+
 ## Configuration
 
 ### Universal or Classic Google Analytics Configuration
@@ -69,7 +71,7 @@ Setting this value to 0 will force the script to use Google Tag Manager events, 
 
 ### Google Tag Manager Configuration
 
-Once you've added the script to your container (see [Google Tag Manager Installation](#Google-Tag-Manager-Installation)), Data Layer events will occur for all of the following:
+Once you've added the script to your container (see [Google Tag Manager Installation](#google-tag-manager-installation)), Data Layer events will occur for all of the following:
 
 - Play
 - Pause
