@@ -57,8 +57,7 @@ By default, the plugin will try and fire Data Layer events, then fallback to Uni
        // ... the tracking code
 
     } )( document, window, {
-        'forceSyntax': 1
-      }
+      'forceSyntax': 1
     } );
 
 Setting this value to 0 will force the script to use Google Tag Manager events, setting it 1 will force it to use Universal Google Analytics events, and setting it to 2 will force it to use Classic Google Analytics events.
