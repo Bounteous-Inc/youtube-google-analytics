@@ -76,13 +76,15 @@ Once you've added the script to your container (see [Google Tag Manager Installa
 
 Create the following Variables:
 
-* Variable Name: videoName
+* Variable Name: videoId
     - Variable Type: Data Layer Variable
-    - Data Layer Variable Name: attributes.videoName
+    - Data Layer Variable Name: attributes.videoId
+    - This will always be the ID of the video, which is a random-looking string of text
 
 * Variable Name: videoAction
     - Variable Type: Data Layer Variable
     - Data Layer Variable Name: attributes.videoAction
+    - This will be the action the user has taken, e.g. Play, Pause, or Watch to End
 
 Create the following Triggers:
 
@@ -100,7 +102,7 @@ Create your Google Analytics Event tag
     - Track Type: Event
     - Category: Videos
     - Action: {{videoAction}}
-    - Label: {{videoTitle}}
+    - Label: {{videoId}}
     - Fire On: More
         - Choose from existing Triggers: YouTube Video Event
 

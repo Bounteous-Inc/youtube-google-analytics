@@ -166,25 +166,17 @@
     var targetVideoUrl  = evt.target.getVideoUrl();
     var targetVideoId   = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
     var shouldEventFire = checkIfEventShouldFire( evt.data, youTubeIframe );
+
     interpretState( evt.data, youTubeIframe );  
     
     if( shouldEventFire ) {
  
       if( youTubeIframe.videoId !== targetVideoId && !youTubeIframe.lockVideoTitle ) {
 
-        if( evt.target && evt.target.getVideoData ) {
-
-          youTubeIframe.videoName = evt.target.getVideoData().title || targetVideoId;
-
-        } else {
-
-          youTubeIframe.videoName = targetVideoId;
-
-        }
+        youTubeIframe.videoId = targetVideoId;
 
       }
 
-      youTubeIframe.videoId = targetVideoId;
       fireAnalyticsEvent( youTubeIframe, state);
 
     }
@@ -194,7 +186,7 @@
   // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( youTubeIframe, state ) {
 
-    var videoName = youTubeIframe.videoName;
+    var videoId = youTubeIframe.videoId;
 
     if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
 
@@ -203,7 +195,7 @@
         'event'     : 'youTubeTrack',
         'attributes': {
 
-          'videoName'  : videoName,
+          'videoId': videoId,
           'videoAction': state
 
         }
@@ -214,11 +206,11 @@
 
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state, videoName, 0, false );
+        window.ga( 'send', 'event', 'Videos', state, videoId, 0, false );
 
       } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-        window._gaq.push( [ '_trackEvent', 'Videos', state, videoName ] );
+        window._gaq.push( [ '_trackEvent', 'Videos', state, videoId ] );
 
       }
 
