@@ -7,9 +7,9 @@
 
   }
   
-  var config      = typeof config === 'object' ? config : {};
-  var forceSyntax = config.forceSyntax || 0;
-  var eventsFired = config.events ||  {
+  var _config     = config !== "OPT_CONFIG_OBJ" ? config : {};
+  var forceSyntax = _config.forceSyntax || 0;
+  var eventsFired = _config.events ||  {
 
     'Unstarted'   : false,
     'Watch to End': true,
@@ -19,9 +19,29 @@
     'Cueing'      : false
 
   };
+
+  // Set default events if they are unspecified
+  if( typeof eventsFired[ 'Play' ] === 'undefined' ) {
+
+    eventsFired[ 'Play' ] = true;
+
+  }
+
+
+  if( typeof eventsFired[ 'Pause' ] === 'undefined' ) {
+
+    eventsFired[ 'Pause' ] = true;
+    
+  }
+
+  if( typeof eventsFired[ 'Watch to End' ] === 'undefined' ) {
+
+    eventsFired[ 'Watch to End' ] = true;
+    
+  }
   
   //*****//
-  // DO NOT EDIT ANYTHING BELOW THIS LINE EXCEPT "OPT_CONFIG_OBJ"
+  // DO NOT EDIT ANYTHING BELOW THIS LINE EXCEPT "OPT_CONFIG_OBJ" AT THE BOTTOM
   //*****//
 
   // Invoked by the YouTube API when it's ready
@@ -39,17 +59,6 @@
   tag.src            = '//www.youtube.com/iframe_api';
   var firstScriptTag = document.getElementsByTagName( 'script' )[0];
   firstScriptTag.parentNode.insertBefore( tag, firstScriptTag );
-
-  var playerStatesIndex = {
-
-    '-1': 'Unstarted',
-    '0' : 'Watch to End',
-    '1' : 'Play',
-    '2' : 'Pause',
-    '3' : 'Buffering',
-    '5' : 'Cueing'
-
-  };
 
   // Take our videos and turn them into trackable videos with events
   function digestPotentialVideos( potentialVideos ) {
@@ -135,14 +144,6 @@
 
     youTubeIframe.pauseFlag  = false;
 
-    // Playlists event garbage events; this handles those
-    if( youTubeIframe.src.indexOf( 'playlist=' ) > -1 ) {
-
-      youTubeIframe.playlist = true;
-      youTubeIframe.watchToEndCount = 0;
-
-    }
-    
     new YT.Player( youTubeIframe, {
 
       events: {
@@ -162,31 +163,63 @@
   // Event handler for events emitted from the YouTube API
   function onStateChangeHandler( evt, youTubeIframe ) {
 
-    var state           = playerStatesIndex[ evt.data ];
+    var stateIndex      = evt.data;
     var targetVideoUrl  = evt.target.getVideoUrl();
     var targetVideoId   = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
-    var shouldEventFire = checkIfEventShouldFire( evt.data, youTubeIframe );
+    var currentState    = youTubeIframe.currentState;
 
-    interpretState( evt.data, youTubeIframe );  
-    
-    if( shouldEventFire ) {
- 
-      if( youTubeIframe.videoId !== targetVideoId && !youTubeIframe.lockVideoTitle ) {
+    // Playlist edge-case handler
+    if( stateIndex === -1 && currentState ) {
 
-        youTubeIframe.videoId = targetVideoId;
-
-      }
-
-      fireAnalyticsEvent( youTubeIframe, state);
+      // Don't fire unstarted events when we've got a previous state stored
+      youTubeIframe.lockVideoId = true;
+      return false;
 
     }
+
+    // Playlist edge-case handler
+    if( stateIndex === 3 && youTubeIframe.lockVideoId ) {
+
+      // Don't fire a Buffering event when we're between videos
+      return false;
+
+    }
+
+    if( !youTubeIframe.lockVideoId ) {
+
+      // The API returns the next playlist video's ID prematurely, so we lock it
+      youTubeIframe.videoId = targetVideoId;
+
+    }
+
+    if( stateIndex === 0 ) {
+
+      youTubeIframe.lockVideoId = false;
+
+    }
+
+    fireAnalyticsEvent( youTubeIframe.videoId, stateIndex );
+
+    // We store the current state for comparison later
+    youTubeIframe.currentState = stateIndex;
 
   }
 
   // Fire an event to Google Analytics or Google Tag Manager
-  function fireAnalyticsEvent( youTubeIframe, state ) {
+  function fireAnalyticsEvent( videoId, stateIndex ) {
 
-    var videoId = youTubeIframe.videoId;
+    var playerStatesIndex = {
+
+      '-1': 'Unstarted',
+      '0' : 'Watch to End',
+      '1' : 'Play',
+      '2' : 'Pause',
+      '3' : 'Buffering',
+      '5' : 'Cueing'
+
+    };
+
+    var state = playerStatesIndex[ stateIndex ];
 
     if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
 
@@ -217,84 +250,31 @@
     }
 
   }
-
-  // Determine if we should fire a Google Analytics/GTM event when a YouTube 
-  // event is emitted
-  function checkIfEventShouldFire( stateIndex, youTubeIframe ) {
-
-    if( stateIndex === 0 ) {
-
-      // Edge case for playlists
-      if( youTubeIframe.playlist ) {
-        
-        youTubeIframe.watchToEndCount++;
-
-      }
-
-    }
-
-    // Edge case handler for playlists
-    if( youTubeIframe.playlist && youTubeIframe.watchToEndCount % 2 === 1 ) {
-
-      return false;
-
-    }
-
-    // If we see a PAUSE event, but the video wasn't playing, ignore it
-    if( stateIndex === 2 && youTubeIframe.pauseFlag ) {
-
-      return false;
-
-    }
-    
-    return true;
-
-  }
-
-  // Interpret the state passed by the YouTube event
-  function interpretState( stateIndex, youTubeIframe ) {
-  
-    // Playlists edge case handler
-    if( youTubeIframe.lockVideoTitle ) {
-
-      youTubeIframe.lockVideoTitle = false;
-
-    }
-  
-    // Playlist edge case handler
-    if( stateIndex === 0 ) {
-  
-      youTubeIframe.lockVideoTitle = true; 
-
-    }
-
-    if( stateIndex === 2 ) {
-
-      youTubeIframe.pauseFlag = true;
-
-    }
-
-    if( stateIndex === 1 ) {
-
-      youTubeIframe.pauseFlag = false;
-
-    }
-
-  }
     
 } )( document, window, "OPT_CONFIG_OBJ" );
-/**
+/*
  * "OPT_CONFIG_OBJ" can be replaced with an object
- * to modify default behavior
+ * to modify default behavior, e.g.:
  *
- * @property forceSyntax int
+ * {
+ *   'events': {
+ *     'Unstarted': true,
+ *     'Watch to End': false;
+ *   },
+ *   forceSyntax: 1
+ * }
+ *
+ * @property forceSyntax int 0, 1, or 2
  * Forces script to use Classic (2) or Universal(1)
+ *
  * Default: 0
  *
  * @property events object
  * Defines which events emitted by YouTube API
- * will be turned into Classic or Universal events
- * Default: {
+ * will be turned into Google Analytics or GTM events
+ * 
+ * Defaults:
+ * 'events': {
  *   'Unstarted'   : false,
  *   'Watch to End': true,
  *   'Play'        : true,
