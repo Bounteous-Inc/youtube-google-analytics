@@ -92,13 +92,13 @@ Create the following Triggers:
     - Trigger Type: Custom Event
     - Event Name: youTubeTrack
     - Add Filters:
-        - videoAction MATCHES REGEX &lt;enter a pipe ('|') separated lists of the actions you want to track&gt;, e.g. Play|Pause|Watch to End
+        - videoAction MATCHES REGEX *&lt;enter a pipe ('|') separated list of the actions you want to track, e.g. Play|Pause|Watch to End&gt;*
 
 Create your Google Analytics Event tag
 
 * Tag Type: Google Analytics
     - Choose a Tag Type: Universal Analytics (or Classic Analytics, if you are still using that)
-    - Tracking Id: &lt;Enter in your Google Analytics tracking ID&gt;
+    - Tracking ID: *&lt;Enter in your Google Analytics tracking ID&gt;*
     - Track Type: Event
     - Category: Videos
     - Action: {{videoAction}}
