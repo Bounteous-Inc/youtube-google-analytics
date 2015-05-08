@@ -2,6 +2,11 @@
 
 This is a plug-and-play tracking solution for tracking user interaction with YouTube videos in Google Analytics. It will detect if GTM, Universal Analytics, or Classic Analytics is installed on the page, in that order, and use the first syntax it matches unless configured otherwise. It include support for delivering hits directly to Universal or Classic Google Analytics, or for pushing Data Layer events to be used by Google Tag Manager.
 
+Once installed, the plugin will fire events with the following settings:
+- Event Category: Videos
+- Event Action: *&lt;Action, e.g. Play, Pause&gt;*
+- Event Label: *&lt;URL of the video&gt;*
+
 ## Installation
 
 **Note:** This plugin relies on the window.onYouTubeIframeAPIReady namespace and will throw an error if it is currently in use by another script. Check the console for an error if it appears to not be working, and ensure you aren't already trying to track YouTube videos with other code.
@@ -75,10 +80,10 @@ Once you've added the script to your container (see [Google Tag Manager Installa
 
 Create the following Variables:
 
-* Variable Name: videoId
+* Variable Name: videoUrl
     - Variable Type: Data Layer Variable
-    - Data Layer Variable Name: attributes.videoId
-    - This will always be the ID of the video, which is a random-looking string of text
+    - Data Layer Variable Name: attributes.videoUrl
+    - This will be the URL of the video on YouTube
 
 * Variable Name: videoAction
     - Variable Type: Data Layer Variable
@@ -101,7 +106,7 @@ Create your Google Analytics Event tag
     - Track Type: Event
     - Category: Videos
     - Action: {{videoAction}}
-    - Label: {{videoId}}
+    - Label: {{videoUrl}}
     - Fire On: More
         - Choose from existing Triggers: YouTube Video Event
 

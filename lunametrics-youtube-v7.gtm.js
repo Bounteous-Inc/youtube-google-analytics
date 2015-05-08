@@ -220,6 +220,7 @@
     };
 
     var state = playerStatesIndex[ stateIndex ];
+    var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
 
     if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
 
@@ -228,7 +229,7 @@
         'event'     : 'youTubeTrack',
         'attributes': {
 
-          'videoId': videoId,
+          'videoUrl': videoUrl,
           'videoAction': state
 
         }
@@ -239,11 +240,11 @@
 
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state, videoId, 0, false );
+        window.ga( 'send', 'event', 'Videos', state, videoUrl, 0, false );
 
       } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-        window._gaq.push( [ '_trackEvent', 'Videos', state, videoId ] );
+        window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl ] );
 
       }
 
