@@ -240,7 +240,7 @@
 
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state, videoUrl, 0, false );
+        window.ga( 'send', 'event', 'Videos', state, videoUrl, 0 );
 
       } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
