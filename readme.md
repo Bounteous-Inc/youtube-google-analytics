@@ -130,7 +130,7 @@ Create your Google Analytics Event tag
 
 You can reconfigure the YouTube Video Event trigger anytime you'd like to track more of the events included, such as Cueing or Buffering. Remember that GTM events are not Google Analytics Events, and whether a GTM event sends data to Google Analytics is entirely up to how your Triggers are configured.
 
-#### Configuring Percentage Viewd Tracking 
+#### Configuring Percentage Viewed Tracking 
 
 By default, percentage viewed tracking is enabled for GTM to push a dataLayer event every 20% interval a user watches of the video. Edit it by setting the percentageTracking configuration to the percentage segment you'd like to track, e.g. 20 for every 20%.
 
