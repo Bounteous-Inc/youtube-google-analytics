@@ -69,6 +69,20 @@ By default, the plugin will try and fire Data Layer events, then fallback to Uni
 
 Setting this value to 0 will force the script to use Google Tag Manager events, setting it 1 will force it to use Universal Google Analytics events, and setting it to 2 will force it to use Classic Google Analytics events.
 
+#### Enabling Percentage Viewed Tracking
+
+By default, percentage viewed tracking is disabled. Enable it by setting the percentageTracking configuration to the percentage segment you'd like to track, e.g. 20 for every 20%.
+
+    ( function( document, window, config ) {
+    
+       // ... the tracking code
+
+    } )( document, window, {
+      'percentageTracking': 20  // Tracks every 20% viewed
+    } );
+
+**NOTE**: Google Analytics has a 500 hit per-session limitation, as well as a 20 hit window that replenishes at 2 hits per second. For that reason, it is HIGHLY INADVISABLE to track every 1% of video viewed.
+
 ### Google Tag Manager Configuration
 
 Once you've added the script to your container (see [Google Tag Manager Installation](#google-tag-manager-installation)), Data Layer events will occur for all of the following:
@@ -115,6 +129,20 @@ Create your Google Analytics Event tag
 #### Configuring Which Events Fire
 
 You can reconfigure the YouTube Video Event trigger anytime you'd like to track more of the events included, such as Cueing or Buffering. Remember that GTM events are not Google Analytics Events, and whether a GTM event sends data to Google Analytics is entirely up to how your Triggers are configured.
+
+#### Configuring Percentage Viewd Tracking 
+
+By default, percentage viewed tracking is enabled for GTM to push a dataLayer event every 20% interval a user watches of the video. Edit it by setting the percentageTracking configuration to the percentage segment you'd like to track, e.g. 20 for every 20%.
+
+    ( function( document, window, config ) {
+    
+       // ... the tracking code
+
+    } )( document, window, {
+      'percentageTracking': 20  // Tracks every 20% viewed
+    } );
+
+**NOTE**: Google Analytics has a 500 hit per-session limitation, as well as a 20 hit window that replenishes at 2 hits per second. For that reason, it is HIGHLY INADVISABLE to track every 1% of video viewed.
 
 ## License
 

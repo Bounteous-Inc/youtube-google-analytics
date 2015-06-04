@@ -1,11 +1,22 @@
-( function( document, window, config ) {
+;( function( document, window, config ) {
 
-  if( typeof window.onYouTubeIframeAPIReady !== 'undefined' ) {
+  'use strict';
 
-    var err = new Error( 'There is already a function defined at window.onYouTubeIframeAPIReady; aborting LunaMetrics Google Analytics YouTube Tracking', 'lunametrics-youtube.js' );
-    throw err;
+  window.onYouTubeIframeAPIReady = (function() {
+    
+    var cached = window.onYouTubeIframeAPIReady;
 
-  }
+    return function() {
+        
+      if(cached) {
+        cached.apply(this, arguments);
+      }
+
+      init(); 
+
+    }
+
+  })();
   
   var _config     = config !== "OPT_CONFIG_OBJ" ? config : {};
   var forceSyntax = _config.forceSyntax || 0;
@@ -19,6 +30,7 @@
     'Cueing'      : false
 
   };
+  var percentageTracking = parseInt(_config.percentageTracking, 10) || 20; 
 
   // Set default events if they are unspecified
   if( typeof eventsFired[ 'Play' ] === 'undefined' ) {
@@ -45,7 +57,7 @@
   //*****//
 
   // Invoked by the YouTube API when it's ready
-  window.onYouTubeIframeAPIReady = function() {
+  function init() {
 
     var iframes = document.getElementsByTagName( 'iframe' );
     var embeds  = document.getElementsByTagName( 'embed' );
@@ -160,13 +172,72 @@
 
   }
 
+  function getMarks(player) {
+
+    var number = 100 / percentageTracking;
+    var duration = player.getDuration();
+    var increments = duration / number;
+    var marks = {}; 
+
+    for(i = 1; i < number; i++) {
+      
+      var _mark = (i * percentageTracking) + '%';
+      marks[_mark] = parseInt(increments * i, 10); 
+      // Prevents event from firing on unconfigured Classic/Universal implementations
+      if(_config.percentageTracking) {
+        eventsFired[_mark] = true;
+      }
+    }   
+
+    return marks;
+
+  }
+
+  function checkCompletion(player, marks, videoId) {
+
+    var duration = player.getDuration();
+    var currentTime = player.getCurrentTime();
+    var playbackRate = player.getPlaybackRate();
+    player.durationCache = player.durationCache || {};
+
+    for( key in marks ) {
+
+      if( marks[key] <= currentTime && !player.durationCache[key] ) {
+        
+        player.durationCache[key] = true;
+        fireAnalyticsEvent( videoId, key );
+
+      }
+
+    }
+
+  }
+
   // Event handler for events emitted from the YouTube API
   function onStateChangeHandler( evt, youTubeIframe ) {
 
-    var stateIndex      = evt.data;
-    var targetVideoUrl  = evt.target.getVideoUrl();
-    var targetVideoId   = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
-    var currentState    = youTubeIframe.currentState;
+    var stateIndex     = evt.data;
+    var player         = evt.target;
+    var targetVideoUrl = player.getVideoUrl();
+    var targetVideoId  = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
+    var currentState   = youTubeIframe.currentState;
+    var playerState = player.getPlayerState();
+    var marks = getMarks(player);
+
+    if(playerState === 1 && !youTubeIframe.timer) {
+
+      clearInterval(youTubeIframe.timer);
+
+      youTubeIframe.timer = setInterval(function() {
+        checkCompletion(player, marks, youTubeIframe.videoId);
+      }, 1000);
+
+    } else {
+
+      clearInterval(youTubeIframe.timer);
+      youTubeIframe.timer = false;
+
+    }
 
     // Playlist edge-case handler
     if( stateIndex === -1 && currentState ) {
@@ -198,16 +269,6 @@
 
     }
 
-    fireAnalyticsEvent( youTubeIframe.videoId, stateIndex );
-
-    // We store the current state for comparison later
-    youTubeIframe.currentState = stateIndex;
-
-  }
-
-  // Fire an event to Google Analytics or Google Tag Manager
-  function fireAnalyticsEvent( videoId, stateIndex ) {
-
     var playerStatesIndex = {
 
       '-1': 'Unstarted',
@@ -220,6 +281,17 @@
     };
 
     var state = playerStatesIndex[ stateIndex ];
+
+    fireAnalyticsEvent( youTubeIframe.videoId, state );
+
+    // We store the current state for comparison later
+    youTubeIframe.currentState = stateIndex;
+
+  }
+
+  // Fire an event to Google Analytics or Google Tag Manager
+  function fireAnalyticsEvent( videoId, state ) {
+
     var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
 
     if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
@@ -240,7 +312,7 @@
 
       if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
 
-        window.ga( 'send', 'event', 'Videos', state, videoUrl, 0 );
+        window.ga( 'send', 'event', 'Videos', state, videoUrl );
 
       } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
@@ -258,11 +330,12 @@
  * to modify default behavior, e.g.:
  *
  * {
- *   'events': {
+ *   'events': {  // Don't fire the Watch To End event, but fire Unstarted events
  *     'Unstarted': true,
  *     'Watch to End': false;
  *   },
- *   forceSyntax: 1
+ *   forceSyntax: 1, // Force the script to use Universal Analytics
+ *   percentageTracking: 20  // Every 20% increment viewed, fire an event
  * }
  *
  * @property forceSyntax int 0, 1, or 2
@@ -283,4 +356,11 @@
  *   'Buffering'   : false,
  *   'Cued'        : false
  * }
+ *
+ * @property percentageTracking number
+ * Fires events every n% completed, where n
+ * is an integer you specify
+ *
+ * Default: Disabled
+ * 
  */
