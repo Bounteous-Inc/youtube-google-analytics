@@ -9,7 +9,7 @@ Once installed, the plugin will fire events with the following settings:
 
 ## Installation
 
-**Note:** This plugin relies on the window.onYouTubeIframeAPIReady namespace and will throw an error if it is currently in use by another script. Check the console for an error if it appears to not be working, and ensure you aren't already trying to track YouTube videos with other code.
+This plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the <code>window.onYouTubeIframeAPIReady</code> property, it will fail silentlyThis plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the <code>window.onYouTubeIframeAPIReady</code> property, it will fail silently.
 
 ### Universal or Classic Google Analytics Installation:
 
@@ -106,7 +106,7 @@ Create the following Variables:
     - Data Layer Variable Name: attributes.videoAction
     - This will be the action the user has taken, e.g. Play, Pause, or Watch to End
 
-Create the following Triggers:
+Create the following Trigger:
 
 * Trigger Name: YouTube Video Event
     - Trigger Type: Custom Event
