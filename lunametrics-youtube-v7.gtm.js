@@ -106,7 +106,7 @@
 
   }
 
-  // Turn <embeds> into <iframes> and ensure they have the right parameters
+  // Turn embed objects into iframe objects and ensure they have the right parameters
   function normalizeYouTubeIframe( youTubeVideo ) {
 
     var a           = document.createElement( 'a' );
@@ -198,6 +198,7 @@
     var duration = player.getDuration();
     var currentTime = player.getCurrentTime();
     var playbackRate = player.getPlaybackRate();
+    var key;
     player.durationCache = player.durationCache || {};
 
     for( key in marks ) {
