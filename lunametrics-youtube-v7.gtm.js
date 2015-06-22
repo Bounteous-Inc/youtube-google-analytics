@@ -179,7 +179,7 @@
     var increments = duration / number;
     var marks = {}; 
 
-    for(i = 1; i < number; i++) {
+    for(var i = 1; i < number; i++) {
       
       var _mark = (i * percentageTracking) + '%';
       marks[_mark] = parseInt(increments * i, 10); 
