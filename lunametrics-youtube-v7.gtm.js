@@ -20,40 +20,30 @@
   
   var _config     = config !== "OPT_CONFIG_OBJ" ? config : {};
   var forceSyntax = _config.forceSyntax || 0;
-  var eventsFired = _config.events ||  {
-
-    'Unstarted'   : false,
-    'Watch to End': true,
+  // Default configuration for events
+  var eventsFired = {
     'Play'        : true,
     'Pause'       : true,
+    'Watch to End': true,
+    'Unstarted'   : false,
     'Buffering'   : false,
     'Cueing'      : false
-
   };
-  var percentageTracking = parseInt(_config.percentageTracking, 10) || 20; 
+  
+  // Overwrites defaults with customizations, if any
+  var key;
+  for( key in _config.events ) {
 
-  // Set default events if they are unspecified
-  if( typeof eventsFired[ 'Play' ] === 'undefined' ) {
+    if( _config.events.hasOwnProperty( key ) ) {
 
-    eventsFired[ 'Play' ] = true;
+      eventsFired[ key ] = _config.events[ key ];
 
-  }
+    }
 
-
-  if( typeof eventsFired[ 'Pause' ] === 'undefined' ) {
-
-    eventsFired[ 'Pause' ] = true;
-    
-  }
-
-  if( typeof eventsFired[ 'Watch to End' ] === 'undefined' ) {
-
-    eventsFired[ 'Watch to End' ] = true;
-    
   }
   
   //*****//
-  // DO NOT EDIT ANYTHING BELOW THIS LINE EXCEPT "OPT_CONFIG_OBJ" AT THE BOTTOM
+  // DO NOT EDIT ANYTHING BELOW THIS LINE EXCEPT CONFIG AT THE BOTTOM
   //*****//
 
   // Invoked by the YouTube API when it's ready
@@ -145,7 +135,11 @@
     }
 
     a.pathname       = tmpPathname;
-    youTubeVideo.src = a.href + a.hash;
+    if(youTubeVideo.src !== a.href + a.hash) {
+    
+      youTubeVideo.src = a.href + a.hash;
+
+    }
 
     return youTubeVideo;
 
@@ -172,22 +166,46 @@
 
   }
 
-  function getMarks(player) {
+  // Return
+  function getMarks(duration) {
 
-    var number = 100 / percentageTracking;
-    var duration = player.getDuration();
-    var increments = duration / number;
     var marks = {}; 
 
-    for(i = 1; i < number; i++) {
-      
-      var _mark = (i * percentageTracking) + '%';
-      marks[_mark] = parseInt(increments * i, 10); 
-      // Prevents event from firing on unconfigured Classic/Universal implementations
-      if(_config.percentageTracking) {
-        eventsFired[_mark] = true;
+    if( _config.percentageTracking ) {
+
+      var points = [];
+      var i;
+
+      if( _config.percentageTracking.each ) {
+
+        points = points.concat( _config.percentageTracking.each );
+
       }
-    }   
+
+      if( _config.percentageTracking.every ) {
+
+        var every = parseInt( _config.percentageTracking.every, 10 )
+        var num = 100 / every;
+        
+        for( i = 1; i < num; i++ ) {
+      
+          points.push(i * every);
+
+        }
+
+      }
+
+      for(i = 0; i < points.length; i++) {
+
+        var _point = points[i];
+        var _mark = _point + '%';
+        var _time = duration * _point / 100;
+        
+        marks[_mark] = _time;
+
+      }
+
+    }
 
     return marks;
 
@@ -195,17 +213,17 @@
 
   function checkCompletion(player, marks, videoId) {
 
-    var duration = player.getDuration();
-    var currentTime = player.getCurrentTime();
+    var duration     = player.getDuration();
+    var currentTime  = player.getCurrentTime();
     var playbackRate = player.getPlaybackRate();
+    var cache = player[videoId] || {};
     var key;
-    player.durationCache = player.durationCache || {};
 
     for( key in marks ) {
 
-      if( marks[key] <= currentTime && !player.durationCache[key] ) {
+      if( marks[key] <= currentTime && !cache[key] ) {
         
-        player.durationCache[key] = true;
+        cache[key] = true;
         fireAnalyticsEvent( videoId, key );
 
       }
@@ -222,15 +240,29 @@
     var targetVideoUrl = player.getVideoUrl();
     var targetVideoId  = targetVideoUrl.match( /[?&]v=([^&#]*)/ )[ 1 ];  // Extract the ID    
     var currentState   = youTubeIframe.currentState;
-    var playerState = player.getPlayerState();
-    var marks = getMarks(player);
+    var playerState    = player.getPlayerState();
+    var duration       = player.getDuration();
+    var marks          = getMarks(duration);
+    var playerStatesIndex = {
+      '-1': 'Unstarted',
+      '0' : 'Watch to End',
+      '1' : 'Play',
+      '2' : 'Pause',
+      '3' : 'Buffering',
+      '5' : 'Cueing'
+    };
+    var state = playerStatesIndex[ stateIndex ];
+ 
 
     if(playerState === 1 && !youTubeIframe.timer) {
 
       clearInterval(youTubeIframe.timer);
 
       youTubeIframe.timer = setInterval(function() {
+        
+        // Check every second to see if we've hit any of our percentage viewed marks
         checkCompletion(player, marks, youTubeIframe.videoId);
+
       }, 1000);
 
     } else {
@@ -270,21 +302,12 @@
 
     }
 
-    var playerStatesIndex = {
+    // If we're meant to track this event, fire it
+    if( eventsFired[ state ] ) {
+    
+      fireAnalyticsEvent( youTubeIframe.videoId, state );
 
-      '-1': 'Unstarted',
-      '0' : 'Watch to End',
-      '1' : 'Play',
-      '2' : 'Pause',
-      '3' : 'Buffering',
-      '5' : 'Cueing'
-
-    };
-
-    var state = playerStatesIndex[ stateIndex ];
-
-    fireAnalyticsEvent( youTubeIframe.videoId, state );
-
+    }
     // We store the current state for comparison later
     youTubeIframe.currentState = stateIndex;
 
@@ -294,10 +317,12 @@
   function fireAnalyticsEvent( videoId, state ) {
 
     var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
+    var _dataLayer = window[ _config.dataLayerName ] || window.dataLayer;
+    var _ga = window['GoogleAnalyticsObject'];
 
-    if( typeof window.dataLayer !== 'undefined' && !forceSyntax ) { 
+    if( typeof _dataLayer !== 'undefined' && !_config.forceSyntax ) { 
 
-      window.dataLayer.push( {
+      _dataLayer.push( {
 
         'event'     : 'youTubeTrack',
         'attributes': {
@@ -309,59 +334,54 @@
 
       } );
 
-    } else if( eventsFired[ state ] ) {
+    } else if( typeof window[ _ga ] === 'function' && 
+               typeof window[ _ga ].getAll === 'function' && 
+               _config.forceSyntax !== 2 ) 
+    {
 
-      if( typeof window.ga === 'function' && typeof window.ga.getAll === 'function' && forceSyntax !== 2 ) {
+      window[ _ga ]( 'send', 'event', 'Videos', state, videoUrl );
 
-        window.ga( 'send', 'event', 'Videos', state, videoUrl );
+    } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-      } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
-
-        window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl ] );
-
-      }
+      window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl ] );
 
     }
 
   }
     
-} )( document, window, "OPT_CONFIG_OBJ" );
+} )( document, window, {
+  'events': {
+    'Play': true,
+    'Pause': true,
+    'Watch to End': true,
+    'Unstarted': false,
+    'Buffering': false,
+    'Cued': false
+  },
+  'percentageTracking': {
+    'every': 20,
+    'each': [10, 90]
+  }
+} );
 /*
- * "OPT_CONFIG_OBJ" can be replaced with an object
- * to modify default behavior, e.g.:
- *
- * {
- *   'events': {  // Don't fire the Watch To End event, but fire Unstarted events
- *     'Unstarted': true,
- *     'Watch to End': false;
- *   },
- *   forceSyntax: 1, // Force the script to use Universal Analytics
- *   percentageTracking: 20  // Every 20% increment viewed, fire an event
- * }
- *
- * @property forceSyntax int 0, 1, or 2
- * Forces script to use Classic (2) or Universal(1)
- *
- * Default: 0
+ * Configuration Details
  *
  * @property events object
  * Defines which events emitted by YouTube API
  * will be turned into Google Analytics or GTM events
- * 
- * Defaults:
- * 'events': {
- *   'Unstarted'   : false,
- *   'Watch to End': true,
- *   'Play'        : true,
- *   'Pause'       : true,
- *   'Buffering'   : false,
- *   'Cued'        : false
- * }
  *
- * @property percentageTracking number
- * Fires events every n% completed, where n
- * is an integer you specify
+ * @property percentageTracking object
+ * Object with configurations for percentage viewed events
  *
- * Default: Disabled
- * 
+ *   @property each array
+ *   Fires an event once each percentage ahs been reached
+ *
+ *   @property every number
+ *   Fires an event for every n% viewed
+ *
+ * @property forceSyntax int 0, 1, or 2
+ * Forces script to use Classic (2) or Universal(1)
+ *
+ * @property dataLayerName string
+ * Tells script to use custom dataLayer name instead of default
  */
