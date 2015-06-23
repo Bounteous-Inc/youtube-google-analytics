@@ -31,10 +31,11 @@ In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste 
 ## Configuration
 
 ### Default Configuration
-By default, the script will attempt to fire events when users Play, Pause, Watch to End, and watch 10%, 20%, 40%, 60%, 80%, and 90% of each video on the page it is loaded into. These defaults can be adjusted by modifying the object passed as the third argument to the script, at the bottom.
+By default, the script will attempt to fire events when users Play, Pause, Watch to End, and watch 10%, 25%, 50%, 75%, and 90% of each video on the page it is loaded into. These defaults can be adjusted by modifying the object passed as the third argument to the script, at the bottom.
 
-### Interaction Events
-By default, the script will fire events when users interact by:
+### Player Interaction Events
+By default, the script will fire events when users interact with the player by:
+
 - Playing
 - Pausing
 - Watching to the end
@@ -60,7 +61,7 @@ The available events are **Play, Pause, Watch to End, Buffering, Unstarted, and 
 
 ### Percentage Viewed Events
 
-By default, the script will track 10%, 20%, 40%, 60%, 80%, and 90% view completion. You can adjust this by changing the percentageTracking.each and percentageTracking.every values.
+By default, the script will track 10%, 25%, 50%, 75%, and 90% view completion. You can adjust this by changing the percentageTracking.each and percentageTracking.every values.
 
 ####percentageTracking.each
 For each number in the array passed to this configuration, a percentage viewed event will fire.
@@ -71,7 +72,7 @@ For each number in the array passed to this configuration, a percentage viewed e
 
     } )( document, window, {
       'percentageTracking': {
-        'every': 20  // Tracks every 20% viewed
+        'every': 25  // Tracks every 25% viewed
       }
     } );
 
