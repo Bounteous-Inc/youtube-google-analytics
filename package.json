@@ -1,0 +1,25 @@
+{
+  "name": "youtube-google-analytics",
+  "version": "8.0.0",
+  "description": "This is a plug-and-play tracking solution for tracking user interaction with YouTube videos in Google Analytics. It will detect if GTM, Universal Analytics, or Classic Analytics is installed on the page, in that order, and use the first syntax it matches unless configured otherwise. It include support for delivering hits directly to Universal or Classic Google Analytics, or for pushing Data Layer events to be used by Google Tag Manager.",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanWilkerson/youtube-google-analytics.git"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-nodeunit": "~0.4.1",
+    "grunt-contrib-uglify": "^0.9.1"
+  },
+  "author": "LunaMetrics, LLC",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DanWilkerson/youtube-google-analytics/issues"
+  },
+  "homepage": "https://github.com/DanWilkerson/youtube-google-analytics#readme"
+}
