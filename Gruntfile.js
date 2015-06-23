@@ -3,36 +3,24 @@ var jsBeautify = require('js-beautify').js_beautify;
 
 module.exports = function(grunt) {
 
+  var footer = ['/*',
+                ' * v<%= pkg.version %>',
+                ' * Created by the honest folks at @LunaMetrics, written by @SayfSharif and @notdanwilkerson',
+                ' * Documentation: https://github.com/lunametrics/youtube-google-analytics/',
+                ' * Licensed under the Creative Commons 4.0 Attribution Public License',
+                ' */'].join('\r\n');
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    jshint: {
+      files: ['./src/lunametrics-youtube.gtm.js']
+    },
     uglify: {
       options: {
-        footer: ['',
-                 '/*',
-                 ' * Configuration Details',
-                 ' *',
-                 ' * @property events object',
-                 ' * Defines which events emitted by YouTube API',
-                 ' * will be turned into Google Analytics or GTM events',
-                 ' *',
-                 ' * @property percentageTracking object',
-                 ' * Object with configurations for percentage viewed events',
-                 ' *',
-                 ' *   @property each array',
-                 ' *   Fires an event once each percentage ahs been reached',
-                 ' *',
-                 ' *   @property every number',
-                 ' *   Fires an event for every n% viewed',
-                 ' *',
-                 ' * @property forceSyntax int 0, 1, or 2',
-                 ' * Forces script to use Classic (2) or Universal(1)',
-                 ' *',
-                 ' * @property dataLayerName string',
-                 ' * Tells script to use custom dataLayer name instead of default',
-                 ' */'].join('\r\n')
+        footer: footer 
       },
       build: {
-        src: './lunametrics-youtube.gtm.js',
+        src: './src/lunametrics-youtube.gtm.js',
         dest: './lunametrics-youtube.gtm.min.js'
       }
     },
@@ -43,11 +31,22 @@ module.exports = function(grunt) {
           dest: './lunametrics-youtube.gtm.min.js'
         }
       }
+    },
+    prependFooter: {
+      options: {
+        build: {
+          src: './src/lunametrics-youtube.gtm.js',
+          dest: './lunametrics-youtube.gtm.js'
+        },
+        footer: footer
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.registerTask('fixConfig', [], function() {
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+
+  grunt.registerTask('fixConfig', ['Reformat config argument for readability'], function() {
 
     var options = this.options();
     var data = fs.readFileSync(options.build.src, 'utf-8');
@@ -56,9 +55,18 @@ module.exports = function(grunt) {
     var beautifiedConfig = jsBeautify(config);
     var data = data.replace(minifiedConfig, '\n' + beautifiedConfig);
     fs.writeFileSync(options.build.dest, data);  
+    console.log('Appended properly formatted config to end of minified script');
+  });
+
+  grunt.registerTask('prependFooter', ['Prepend credits to footer'], function() {
+
+    var options = this.options();
+    var data = fs.readFileSync(options.build.src, 'utf-8');  
+    fs.writeFileSync(options.build.dest, data + options.footer);
+    console.log('Prepended footer to unminifed script');
 
   });
-  grunt.registerTask('default', ['uglify', 'fixConfig']);
 
+  grunt.registerTask('default', ['jshint', 'prependFooter', 'uglify', 'fixConfig']);
 
 };

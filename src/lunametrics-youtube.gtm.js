@@ -391,9 +391,3 @@
  * @property dataLayerName string
  * Tells script to use custom dataLayer name instead of default
  */
-/*
- * v8.0.0
- * Created by the honest folks at @LunaMetrics, written by @SayfSharif and @notdanwilkerson
- * Documentation: https://github.com/lunametrics/youtube-google-analytics/
- * Licensed under the Creative Commons 4.0 Attribution Public License
- */
