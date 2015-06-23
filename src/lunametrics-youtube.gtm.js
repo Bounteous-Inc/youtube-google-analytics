@@ -179,11 +179,10 @@
 
     var marks = {}; 
 
-<<<<<<< HEAD:src/lunametrics-youtube.gtm.js
     // For full support, we're handling Watch to End with percentage viewed
-    if(_config.events['Watch to End']) {
+    if (_config.events[ 'Watch to End' ] ) {
 
-      marks['Watch to End'] = duration * 99 / 100;
+      marks[ 'Watch to End' ] = duration * 99 / 100;
 
     }
 
@@ -204,9 +203,6 @@
         var num = 100 / every;
         
         for( i = 1; i < num; i++ ) {
-=======
-    for(var i = 1; i < number; i++) {
->>>>>>> 3bde150b114738d90253c25cf449b83537ba9b04:lunametrics-youtube-v7.gtm.js
       
           points.push(i * every);
 
