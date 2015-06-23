@@ -23,7 +23,7 @@
 
   })();
   
-  var _config = config !== "OPT_CONFIG_OBJ" ? config : {};
+  var _config = config : {};
   var forceSyntax = _config.forceSyntax || 0;
   // Default configuration for events
   var eventsFired = {
