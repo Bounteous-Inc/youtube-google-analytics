@@ -9,7 +9,8 @@ Once installed, the plugin will fire events with the following settings:
 
 ## Installation
 
-This plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the window.onYouTubeIframeAPIReady property, it will fail silently.
+This plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the window.onYouTubeIframeAPIReady property, it will fail silently. If you're seeing strange errors like 'getVideoUrl' is not a function, there is another script causing a collision that you must remedy.
+
 ### Universal or Classic Google Analytics Installation:
 
 The plugin is designed to be plug-and-play. By default, the plugin will try and detect if you have Google Tag Manager, Universal Analytics, or Classic Google Analytics, and use the appropriate syntax for the event. If you are **not** using Google Tag Manager to fire your Google Analytics code, store the plugin on your server and include the lunametrics-youtube-v7.gtm.js script file somewhere on the page.
@@ -29,13 +30,14 @@ In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste 
 
 ## Configuration
 
-### Universal or Classic Google Analytics Configuration
+### Default Configuration
+By default, the script will attempt to fire events when users Play, Pause, Watch to End, and watch 10%, 20%, 40%, 60%, 80%, and 90% of each video on the page it is loaded into. These defaults can be adjusted by modifying the object passed as the third argument to the script, at the bottom.
 
-#### Configuring Which Events Fire
-If you are **not** using Google Tag Manager to fire your Google Analytics code, you might want to configure the script to fire or not fire certain events. By default, it will fire:
-- Play events
-- Pause events
-- Watch to End events
+### Interaction Events
+By default, the script will fire events when users interact by:
+- Playing
+- Pausing
+- Watching to the end
 
 To change which events are fired, edit the events property of the configuration at the end of the script. For example, if you'd like to fire Buffering events:
 
@@ -48,13 +50,47 @@ To change which events are fired, edit the events property of the configuration 
         'Play': true,
         'Pause': true,
         'Watch to End': true,
-        'Buffering': true
+        'Buffering': true,
+        'Unstarted': false,
+        'Cued': false
       }
     } );
 
-The available events are **Play, Pause, Watch to End, Buffering, Unstarted, and Cueing**. An example configuration object is at the bottom of the script file.
+The available events are **Play, Pause, Watch to End, Buffering, Unstarted, and Cueing**.
 
-#### Forcing Universal or Classic Analytics
+### Percentage Viewed Events
+
+By default, the script will track 10%, 20%, 40%, 60%, 80%, and 90% view completion. You can adjust this by changing the percentageTracking.each and percentageTracking.every values.
+
+####percentageTracking.each
+For each number in the array passed to this configuration, a percentage viewed event will fire.
+
+    ( function( document, window, config ) {
+    
+       // ... the tracking code
+
+    } )( document, window, {
+      'percentageTracking': {
+        'every': 20  // Tracks every 20% viewed
+      }
+    } );
+
+####percentageTracking.every
+For every n%, where n is the value of percentageTracking.every, a percentage viewed event will fire.
+
+    ( function( document, window, config ) {
+    
+       // ... the tracking code
+
+    } )( document, window, {
+      'percentageTracking': {
+        'each': [10, 90]  // Tracks when 10% of the video and 90% of the video has been viewed
+      }
+    } );
+
+**NOTE**: Google Analytics has a 500 hit per-session limitation, as well as a 20 hit window that replenishes at 2 hits per second. For that reason, it is HIGHLY INADVISABLE to track every 1% of video viewed.
+
+### Forcing Universal or Classic Analytics Instead of GTM
 
 By default, the plugin will try and fire Data Layer events, then fallback to Univeral Analytics events, then fallback to Classic Analytics events. If you want to force the script to use a particular syntax for your events, you can set the 'forceSyntax' property of the configuration object to an integer:
     
@@ -68,30 +104,20 @@ By default, the plugin will try and fire Data Layer events, then fallback to Uni
 
 Setting this value to 0 will force the script to use Google Tag Manager events, setting it 1 will force it to use Universal Google Analytics events, and setting it to 2 will force it to use Classic Google Analytics events.
 
-#### Enabling Percentage Viewed Tracking
-
-By default, percentage viewed tracking is disabled. Enable it by setting the percentageTracking configuration to the percentage segment you'd like to track, e.g. 20 for every 20%.
+### Using A Custom Data Layer Name (GTM Only)
+If you're using a name for your dataLayer object other than 'dataLayer', you must configure the script to push the data into the correct place. Otherwise, it will try Universal Analytics directly, then Classic Analytics, and then fail silently.
 
     ( function( document, window, config ) {
     
        // ... the tracking code
 
     } )( document, window, {
-      'percentageTracking': 20  // Tracks every 20% viewed
+      'dataLayerName': 'customDataLayerName'
     } );
 
-**NOTE**: Google Analytics has a 500 hit per-session limitation, as well as a 20 hit window that replenishes at 2 hits per second. For that reason, it is HIGHLY INADVISABLE to track every 1% of video viewed.
+## Google Tag Manager Configuration
 
-### Google Tag Manager Configuration
-
-Once you've added the script to your container (see [Google Tag Manager Installation](#google-tag-manager-installation)), Data Layer events will occur for all of the following:
-
-- Play
-- Pause
-- Watch to End
-- Cueing
-- Buffering
-- Unstarted
+Once you've added the script to your container (see [Google Tag Manager Installation](#google-tag-manager-installation)), you must configure Google Tag Manager.
 
 Create the following Variables:
 
@@ -110,8 +136,6 @@ Create the following Trigger:
 * Trigger Name: YouTube Video Event
     - Trigger Type: Custom Event
     - Event Name: youTubeTrack
-    - Add Filters:
-        - videoAction MATCHES REGEX *&lt;enter a pipe ('|') separated list of the actions you want to track, e.g. Play|Pause|Watch to End&gt;*
 
 Create your Google Analytics Event tag
 
@@ -124,24 +148,6 @@ Create your Google Analytics Event tag
     - Label: {{videoUrl}}
     - Fire On: More
         - Choose from existing Triggers: YouTube Video Event
-
-#### Configuring Which Events Fire
-
-You can reconfigure the YouTube Video Event trigger anytime you'd like to track more of the events included, such as Cueing or Buffering. Remember that GTM events are not Google Analytics Events, and whether a GTM event sends data to Google Analytics is entirely up to how your Triggers are configured.
-
-#### Configuring Percentage Viewed Tracking 
-
-By default, percentage viewed tracking is enabled for GTM to push a dataLayer event every 20% interval a user watches of the video. Edit it by setting the percentageTracking configuration to the percentage segment you'd like to track, e.g. 20 for every 20%.
-
-    ( function( document, window, config ) {
-    
-       // ... the tracking code
-
-    } )( document, window, {
-      'percentageTracking': 20  // Tracks every 20% viewed
-    } );
-
-**NOTE**: Google Analytics has a 500 hit per-session limitation, as well as a 20 hit window that replenishes at 2 hits per second. For that reason, it is HIGHLY INADVISABLE to track every 1% of video viewed.
 
 ## License
 
