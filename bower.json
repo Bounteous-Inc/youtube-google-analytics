@@ -1,7 +1,7 @@
 {
   "name": "youtube-google-analytics",
-  "version": "8.0.1",
-  "homepage": "lunametrics.com/blog/2015/05/11/updated-youtube-tracking-google-analytics-gtm/",
+  "version": "8.0.2",
+  "homepage": "https://github.com/lunametrics/youtube-google-analytics",
   "authors": [
     "Dan Wilkerson <notdanwilkerson@gmail.com>"
   ],
