@@ -1,0 +1,15 @@
+{
+  "name": "youtube-google-analytics",
+  "version": "8.0.1",
+  "homepage": "lunametrics.com/blog/2015/05/11/updated-youtube-tracking-google-analytics-gtm/",
+  "authors": [
+    "Dan Wilkerson <notdanwilkerson@gmail.com>"
+  ],
+  "description": "YouTube Google Analytics Embed Tracking",
+  "main": "lunametrics-youtube.gtm.js",
+  "keywords": [
+    "youtube",
+    "analytics"
+  ],
+  "license": "Creative Commons 4.0 International Public License"
+}
