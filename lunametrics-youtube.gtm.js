@@ -180,9 +180,9 @@
     var marks = {}; 
 
     // For full support, we're handling Watch to End with percentage viewed
-    if(_config.events['Watch to End']) {
+    if (_config.events[ 'Watch to End' ] ) {
 
-      marks['Watch to End'] = duration * 99 / 100;
+      marks[ 'Watch to End' ] = duration * 99 / 100;
 
     }
 
@@ -329,9 +329,9 @@
     var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
     var _ga = window.GoogleAnalyticsObject;
 
-    if( typeof window[ _config.dataLayerName ] !== 'undefined' && !_config.forceSyntax ) { 
+    if( typeof window[ dataLayerName ] !== 'undefined' && !_config.forceSyntax ) { 
       
-      window[ _config.dataLayerName ].push( {
+      window[ dataLayerName ].push( {
 
         'event'     : 'youTubeTrack',
         'attributes': {
