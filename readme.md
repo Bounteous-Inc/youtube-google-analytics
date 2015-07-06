@@ -30,50 +30,50 @@ In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste 
     - Variable Type: Custom JavaScript Variables
     - Variable Value: 
 
-          function() {
+            function() {
 
-            var iframes = document.getElementsByTagName('iframe');
-            var embeds = document.getElementsByTagName('embed');
-            var i;
+              var iframes = document.getElementsByTagName('iframe');
+              var embeds = document.getElementsByTagName('embed');
+              var i;
 
-            function isYouTubeVideo(potentialYouTubeVideo) {
+              function isYouTubeVideo(potentialYouTubeVideo) {
 
-              var potentialYouTubeVideoSrc = potentialYouTubeVideo.src || '';
+                var potentialYouTubeVideoSrc = potentialYouTubeVideo.src || '';
 
-              if( potentialYouTubeVideoSrc.indexOf( 'youtube.com/embed/' ) > -1 || 
-                  potentialYouTubeVideoSrc.indexOf( 'youtube.com/v/' ) > -1 ) {
+                if( potentialYouTubeVideoSrc.indexOf( 'youtube.com/embed/' ) > -1 || 
+                    potentialYouTubeVideoSrc.indexOf( 'youtube.com/v/' ) > -1 ) {
 
-                return true;
+                  return true;
+
+                }
 
               }
 
-            }
+              for(i = iframes.length - 1; i > -1; i--) {
+              
+                var _iframe = iframes[i];
+                var test = isYouTubeVideo(_iframe);
 
-            for(i = iframes.length - 1; i > -1; i--) {
-            
-              var _iframe = iframes[i];
-              var test = isYouTubeVideo(_iframe);
+                if(test) {
+                  return true;
+                }
 
-              if(test) {
-                return true;
               }
 
-            }
+              for(i = embeds.length - 1; i > -1; i--) {
 
-            for(i = embeds.length - 1; i > -1; i--) {
+                var _embed = embeds[i];
+                var test = isYouTubeVideo(_embed);
 
-              var _embed = embeds[i];
-              var test = isYouTubeVideo(_embed);
+                if(test) {
+                  return true;
+                }
 
-              if(test) {
-                return true;
               }
 
+              return false;
+
             }
-
-            return false;
-
-          }
 
     - Returns 'true' if a video is detected, otherwise returns 'false'
 
