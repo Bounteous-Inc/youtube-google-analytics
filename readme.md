@@ -24,9 +24,72 @@ Create a new Custom HTML tag and paste in the below:
       // script file contents go here
     </script>
 
-In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste in the contents of the lunametrics-youtube-v7.gtm.js script, found [here](https://raw.githubusercontent.com/lunametrics/youtube-google-analytics/master/lunametrics-youtube-v7.gtm.js).
+In the space between the **&lt;script&gt;** and **&lt;/script&gt;** tags, paste in the contents of the lunametrics-youtube.gtm.js script, found [here](https://raw.githubusercontent.com/lunametrics/youtube-google-analytics/master/lunametrics-youtube.gtm.js). Set the Firing Trigger to 'All Pages'. If you'd prefer to fire the tag only when a YouTube video is detected, create the following variable:
 
-**You need to add a Google Analytics Event tag that acts upon the pushes to the Data Layer the plugin executes.** Follow the steps in the [Google Tag Manager Configuration](#google-tag-manager-configuration) section for help on getting this set up.
+* Variable Name: YouTube Video Present
+    - Variable Type: Custom JavaScript Variables
+    - Variable Value: 
+
+```
+    function() {
+
+      var iframes = document.getElementsByTagName('iframe');
+      var embeds = document.getElementsByTagName('embed');
+      var i;
+
+      function isYouTubeVideo(potentialYouTubeVideo) {
+
+        var potentialYouTubeVideoSrc = potentialYouTubeVideo.src || '';
+
+        if( potentialYouTubeVideoSrc.indexOf( 'youtube.com/embed/' ) > -1 || 
+            potentialYouTubeVideoSrc.indexOf( 'youtube.com/v/' ) > -1 ) {
+
+          return true;
+
+        }
+
+      }
+
+      for(i = iframes.length - 1; i > -1; i--) {
+      
+        var _iframe = iframes[i];
+        var test = isYouTubeVideo(_iframe);
+
+        if(test) {
+          return true;
+        }
+
+      }
+
+      for(i = embeds.length - 1; i > -1; i--) {
+
+        var _embed = embeds[i];
+        var test = isYouTubeVideo(_embed);
+
+        if(test) {
+          return true;
+        }
+
+      }
+
+      return false;
+
+    }
+```
+
+    - Returns 'true' if a video is detected, otherwise returns 'false'
+
+Create the following Trigger:
+
+* Trigger Name: YouTube Video Detected
+    - Trigger Event: Page View
+    - Trigger Type: Window Loaded
+    - Fire On: Some Pageviews
+        - YouTube Video Present equals true
+
+Use the YouTube Video Detected Trigger to fire the YouTube Google Analytics script.
+
+**Don't forget, you need to add a Google Analytics Event tag that acts upon the pushes to the Data Layer the plugin executes.** Follow the steps in the [Google Tag Manager Configuration](#google-tag-manager-configuration) section for help on getting this set up.
 
 ## Configuration
 
