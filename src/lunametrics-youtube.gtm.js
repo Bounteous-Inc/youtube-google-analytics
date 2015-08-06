@@ -133,8 +133,7 @@
       var newIframe     = document.createElement( 'iframe' );
       newIframe.height  = youTubeVideo.height;
       newIframe.width   = youTubeVideo.width;
-
-      tmpPathname = '/embed/' + youTubeVideo.videoId;
+      tmpPathname = tmpPathname.replace('/v/', '/embed/');
 
       youTubeVideo.parentNode.parentNode.replaceChild( newIframe, youTubeVideo.parentNode );
 
