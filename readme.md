@@ -17,7 +17,26 @@ The plugin is designed to be plug-and-play. By default, the plugin will try and 
 
     <script src="/somewhere-on-your-server/lunametrics-youtube-v7.gtm.js"></script>
 
-### Google Tag Manager Installation
+###Google Tag Manager Installation
+
+####Container Import (recommended)
+
+1. Download the file 'luna-youtube-tracking.json' from this repository.
+2. In Google Tag Manager, navigate to the **Admin** tab.
+3. Under the **Container** column, select **Import Container**.
+4. Click **Choose Container File** and select the 'luna-youtube-tracking.json' file you downloaded.
+5. Select **Merge** from the radio selector beneath the Choose Container File button.
+6. Select **Rename** from the radio selector that appears beneath the Merge selector.
+7. Click Continue, then Confirm.
+8. Navigate to the Tags interface - select the tag imported tag named GA - Event - YouTube Tracking.
+9. Change the {{YOUR_GA_TRACKING_ID}} in the **Tracking ID** field to your Google Analytics Tracking ID (a.k.a. UA Number).
+
+Once you publish your next container, YouTube tracking will begin working immediately.
+
+**NOTE:** If you're using a custom GA cookie name, GA cookie domain, or GA function name, you'll need to change those variables as well.
+
+####Manual Installation (not recommended)
+
 Create a new Custom HTML tag and paste in the below:
 
     <script type="text/javascript" id="gtm-youtube-tracking">
