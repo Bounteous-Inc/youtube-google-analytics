@@ -202,33 +202,34 @@ Once you've added the script to your container (see [Google Tag Manager Installa
 
 Create the following Variables:
 
-* Variable Name: videoUrl
+* Variable Name: Video URL
     - Variable Type: Data Layer Variable
     - Data Layer Variable Name: attributes.videoUrl
     - This will be the URL of the video on YouTube
 
-* Variable Name: videoAction
+* Variable Name: Video Action
     - Variable Type: Data Layer Variable
     - Data Layer Variable Name: attributes.videoAction
     - This will be the action the user has taken, e.g. Play, Pause, or Watch to End
 
 Create the following Trigger:
 
-* Trigger Name: YouTube Video Event
+* Trigger Name: Event - YouTube Tracking
     - Trigger Type: Custom Event
     - Event Name: youTubeTrack
 
 Create your Google Analytics Event tag
 
-* Tag Type: Google Analytics
+* Tag Name: GA - Event - YouTube Tracking
+    - Tag Type: Google Analytics
     - Choose a Tag Type: Universal Analytics (or Classic Analytics, if you are still using that)
     - Tracking ID: *&lt;Enter in your Google Analytics tracking ID&gt;*
     - Track Type: Event
     - Category: Videos
-    - Action: {{videoAction}}
-    - Label: {{videoUrl}}
+    - Action: {{Video Action}}
+    - Label: {{Video URL}}
     - Fire On: More
-        - Choose from existing Triggers: YouTube Video Event
+        - Choose from existing Triggers: Event - YouTube Tracking
 
 ## License
 
