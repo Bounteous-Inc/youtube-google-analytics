@@ -391,8 +391,9 @@
  * Tells script to use custom dataLayer name instead of default
  */
 /*
- * v8.0.3
- * Created by the honest folks at @LunaMetrics, written by @SayfSharif and @notdanwilkerson
+ * v8.0.4
+ * Created by the Google Analytics consultants at http://www.lunametrics.com
+ * Written by @SayfSharif and @notdanwilkerson
  * Documentation: https://github.com/lunametrics/youtube-google-analytics/
  * Licensed under the Creative Commons 4.0 Attribution Public License
  */
