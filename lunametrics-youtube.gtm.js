@@ -238,7 +238,7 @@
       if( marks[key] <= currentTime && !player[videoId][key] ) {
 
         player[videoId][key] = true;
-        fireAnalyticsEvent( videoId, key );
+        fireAnalyticsEvent( videoId, player.getVideoData().title, key );
 
       }
 
@@ -316,14 +316,14 @@
     // If we're meant to track this event, fire it
     if( eventsFired[ state ] ) {
     
-      fireAnalyticsEvent( youTubeIframe.videoId, state );
+      fireAnalyticsEvent( youTubeIframe.videoId, player.getVideoData().title, state );
 
     }
 
   }
 
   // Fire an event to Google Analytics or Google Tag Manager
-  function fireAnalyticsEvent( videoId, state ) {
+  function fireAnalyticsEvent( videoId, videoTitle, state ) {
 
     var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
     var _ga = window.GoogleAnalyticsObject;
@@ -336,7 +336,8 @@
         'attributes': {
 
           'videoUrl': videoUrl,
-          'videoAction': state
+          'videoAction': state,
+          'videoTitle': videoTitle
 
         }
 
@@ -347,11 +348,11 @@
                _config.forceSyntax !== 2 ) 
     {
 
-      window[ _ga ]( 'send', 'event', 'Videos', state, videoUrl );
+      window[ _ga ]( 'send', 'event', 'Videos', state, videoUrl, videoTitle );
 
     } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-      window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl ] );
+      window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl, videoTitle ] );
 
     }
 
@@ -394,6 +395,7 @@
  * v8.0.4
  * Created by the Google Analytics consultants at http://www.lunametrics.com
  * Written by @SayfSharif and @notdanwilkerson
+ * Modified by R2Integrated Analytics Team at http://www.r2integrated.com
  * Documentation: https://github.com/lunametrics/youtube-google-analytics/
  * Licensed under the Creative Commons 4.0 Attribution Public License
  */

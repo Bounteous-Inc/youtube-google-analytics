@@ -7,6 +7,8 @@ Once installed, the plugin will fire events with the following settings:
 - Event Action: *&lt;Action, e.g. Play, Pause&gt;*
 - Event Label: *&lt;URL of the video&gt;*
 
+- The variable "Video Title" is also available for use in the action and label fields if desired.
+
 ## Installation
 
 This plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the window.onYouTubeIframeAPIReady property, it will fail silently. If you're seeing strange errors like 'getVideoUrl' is not a function, there is another script causing a collision that you must remedy.
@@ -212,6 +214,11 @@ Create the following Variables:
     - Data Layer Variable Name: attributes.videoAction
     - This will be the action the user has taken, e.g. Play, Pause, or Watch to End
 
+* Variable Name: Video Title
+    - Variable Type: Data Layer Variable
+    - Data Layer Variable Name: attributes.videoTitle
+    - This will be the title of the video on YouTube
+
 Create the following Trigger:
 
 * Trigger Name: Event - YouTube Tracking
@@ -240,3 +247,5 @@ Licensed under the Creative Commons 4.0 International Public License. Refer to t
 Created by the honest folks at [LunaMetrics](http://www.lunametrics.com/), a digital marketing & Google Analytics consultancy. For questions, please drop us a line here or [on our blog](http://www.lunametrics.com/blog/2015/05/11/updated-youtube-tracking-google-analytics-gtm/).
 
 Written by [Sayf Sharif](https://twitter.com/sayfsharif) and updated by [Dan Wilkerson](https://twitter.com/notdanwilkerson).
+
+Modified by the integrated folks at [R2Integrated](http://www.r2integrated.com/), a digital marketing agency based out of Silicon Valley and Baltimore).

@@ -7,6 +7,7 @@ module.exports = function(grunt) {
                 ' * v<%= pkg.version %>',
                 ' * Created by the Google Analytics consultants at http://www.lunametrics.com',
                 ' * Written by @SayfSharif and @notdanwilkerson',
+                ' * Modified by R2Integrated Analytics Team at http://www.r2integrated.com',
                 ' * Documentation: https://github.com/lunametrics/youtube-google-analytics/',
                 ' * Licensed under the Creative Commons 4.0 Attribution Public License',
                 ' */'].join('\r\n');
