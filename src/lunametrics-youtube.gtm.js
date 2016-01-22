@@ -346,9 +346,7 @@
 
   }
   //actually fire the event
-  function eventFire (name, state) {
-    console.log(name);
-    var _ga = window.GoogleAnalyticsObject;
+  function eventFire (name, state) {    var _ga = window.GoogleAnalyticsObject;
     if( typeof window[ dataLayerName ] !== 'undefined' && !_config.forceSyntax ) { 
       
       window[ dataLayerName ].push( {
