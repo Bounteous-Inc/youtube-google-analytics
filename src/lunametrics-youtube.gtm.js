@@ -34,6 +34,8 @@
     'Pause'       : true,
     'Watch to End': true
   };
+  //enter api key from console.developers.google.com
+  var youTubeAPIKey = "";
   
   // Overwrites defaults with customizations, if any
   var key;
@@ -325,19 +327,22 @@
   // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( videoId, state ) {
     var name = 'https://www.youtube.com/watch?v=' + videoId;
-    var youTubeAPIKey = "{ENTER_API_KEY}";//replace with api key from console.developers.google.com
     var youTubeAPIUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="+videoId+"&fields=items%2Fsnippet%2Ftitle&key="+youTubeAPIKey;
+    if(youTubeAPIKey !== ""){
     var request = $.get(youTubeAPIUrl);
-    request.error(function(jqXHR, textStatus, errorThrown){
-        $.each(jqXHR.responseJSON.error.errors, function(k,v){
-            console.error(v.message);
-        });
-        eventFire(name, state);
-    });
-    request.success(function(data){
-        name = data.items[0].snippet.title;
-        eventFire(name, state);
-    })
+      request.error(function(jqXHR, textStatus, errorThrown){
+          $.each(jqXHR.responseJSON.error.errors, function(k,v){
+              console.error(v.message);
+          });
+          eventFire(name, state);
+      });
+      request.success(function(data){
+          name = data.items[0].snippet.title;
+          eventFire(name, state);
+      })
+    } else {
+      eventFire(name, state);
+    }
 
   }
   //actually fire the event
