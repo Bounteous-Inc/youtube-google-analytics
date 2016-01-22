@@ -196,6 +196,10 @@ If you're using a name for your dataLayer object other than 'dataLayer', you mus
       'dataLayerName': 'customDataLayerName'
     } );
 
+## YouTube V3 API
+
+If you wish to see the YouTube Video name in Google Analytics instead of the url you will need to add a valid API key from your [Google Developer Console](http://console.developers.google.com/) and enter it in the youTubeAPIKey variable in lunametrics-youtube.gtm.js line 38.
+
 ## Google Tag Manager Configuration
 
 Once you've added the script to your container (see [Google Tag Manager Installation](#google-tag-manager-installation)), you must configure Google Tag Manager.

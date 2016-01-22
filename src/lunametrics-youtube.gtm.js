@@ -34,6 +34,8 @@
     'Pause'       : true,
     'Watch to End': true
   };
+  //enter api key from console.developers.google.com
+  var youTubeAPIKey = "";
   
   // Overwrites defaults with customizations, if any
   var key;
@@ -324,10 +326,27 @@
 
   // Fire an event to Google Analytics or Google Tag Manager
   function fireAnalyticsEvent( videoId, state ) {
+    var name = 'https://www.youtube.com/watch?v=' + videoId;
+    var youTubeAPIUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="+videoId+"&fields=items%2Fsnippet%2Ftitle&key="+youTubeAPIKey;
+    if(youTubeAPIKey !== ""){
+    var request = $.get(youTubeAPIUrl);
+      request.error(function(jqXHR, textStatus, errorThrown){
+          $.each(jqXHR.responseJSON.error.errors, function(k,v){
+              console.error(v.message);
+          });
+          eventFire(name, state);
+      });
+      request.success(function(data){
+          name = data.items[0].snippet.title;
+          eventFire(name, state);
+      })
+    } else {
+      eventFire(name, state);
+    }
 
-    var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
-    var _ga = window.GoogleAnalyticsObject;
-
+  }
+  //actually fire the event
+  function eventFire (name, state) {    var _ga = window.GoogleAnalyticsObject;
     if( typeof window[ dataLayerName ] !== 'undefined' && !_config.forceSyntax ) { 
       
       window[ dataLayerName ].push( {
@@ -335,7 +354,7 @@
         'event'     : 'youTubeTrack',
         'attributes': {
 
-          'videoUrl': videoUrl,
+          'videoUrl': name,
           'videoAction': state
 
         }
@@ -347,14 +366,13 @@
                _config.forceSyntax !== 2 ) 
     {
 
-      window[ _ga ]( 'send', 'event', 'Videos', state, videoUrl );
+      window[ _ga ]( 'send', 'event', 'Videos', state, name );
 
     } else if( typeof window._gaq !== 'undefined' && forceSyntax !== 1 ) {
 
-      window._gaq.push( [ '_trackEvent', 'Videos', state, videoUrl ] );
+      window._gaq.push( [ '_trackEvent', 'Videos', state, name ] );
 
     }
-
   }
     
 } )( document, window, {
