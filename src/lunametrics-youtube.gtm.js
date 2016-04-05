@@ -427,7 +427,7 @@
     var isYT = checkIfYouTubeVideo(el);
 
     // We only bind to iframes with a YouTube URL with the enablejsapi=1 and 
-    // origin={{hostname}} parameters
+    // origin=<<hostname>> parameters
     if (el.tagName === 'IFRAME' && isYT && jsApiEnabled(el.src) && originEnabled(el.src)) {
 
       addYouTubeEvents(el);
