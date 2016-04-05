@@ -15,9 +15,18 @@
       }
 
       // This script won't work on IE 6 or 7, so we bail at this point if we detect that UA
-      if (!navigator.userAgent.match(/MSIE [67]\./gi)) {
+      if (navigator.userAgent.match(/MSIE [67]\./gi)) return;
+
+      if (document.readyState !== 'loading') {
 
         init();
+
+      } else {
+
+        // On IE8 this fires on window.load, all other browsers will fire when DOM ready
+        document.addEventListener ? 
+          addEvent(document, 'DOMContentLoaded', init) : 
+          addEvent(window, 'load', init);
 
       }
 
@@ -50,7 +59,9 @@
   // Invoked by the YouTube API when it's ready
   function init() {
 
+console.log('ran');
     var iframes = document.getElementsByTagName('iframe');
+console.log(iframes);
     var embeds = document.getElementsByTagName('embed');
 
     digestPotentialVideos(iframes);
@@ -99,26 +110,40 @@
 
   }
 
+  function jsApiEnabled(url) {
+
+    return url.indexOf('enablejsapi') > -1;
+
+  }
+
+  function originEnabled(url) {
+
+    return url.indexOf('origin') > -1;
+
+  }
+
   // Turn embed objects into iframe objects and ensure they have the right parameters
   function normalizeYouTubeIframe(youTubeVideo) {
 
+    var loc = window.location;
     var a = document.createElement('a');
     a.href = youTubeVideo.src;
     a.hostname = 'www.youtube.com';
-    a.protocol = document.location.protocol;
+    a.protocol = loc.protocol;
     var tmpPathname = a.pathname.charAt(0) === '/' ? a.pathname : '/' + a.pathname; // IE10 shim
 
     // For security reasons, YouTube wants an origin parameter set that matches our hostname
-    var origin = window.location.protocol + '%2F%2F' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 
-    if (a.search.indexOf('enablejsapi') === -1) {
+    if (!jsApiEnabled(a.search)) {
 
       a.search = (a.search.length > 0 ? a.search + '&' : '') + 'enablejsapi=1';
 
     }
 
-    // Don't set if testing locally
-    if (a.search.indexOf('origin') === -1 && window.location.hostname.indexOf('localhost') === -1) {
+    if (!originEnabled(a.search) && loc.hostname.indexOf('localhost') === -1) {
+    
+      var port = loc.port ?  ':' + loc.port : '';
+      var origin = loc.protocol + '%2F%2F' + loc.hostname + port;
 
       a.search = a.search + '&origin=' + origin;
 
@@ -138,6 +163,7 @@
     }
 
     a.pathname = tmpPathname;
+
     if (youTubeVideo.src !== a.href + a.hash) {
 
       youTubeVideo.src = a.href + a.hash;
@@ -151,21 +177,24 @@
   // Add event handlers for events emitted by the YouTube API
   function addYouTubeEvents(youTubeIframe) {
 
-    youTubeIframe.pauseFlag = false;
+    var player = YT.get(youTubeIframe.id);
 
-    new YT.Player(youTubeIframe, {
+    if (!player) {
 
-      events: {
+      player = new YT.Player(youTubeIframe, {}); 
 
-        onStateChange: function(evt) {
+    }
 
-          onStateChangeHandler(evt, youTubeIframe);
+    if (typeof youTubeIframe.pauseFlag === 'undefined') { 
 
-        }
+      youTubeIframe.pauseFlag = false;
+      player.addEventListener('onStateChange', function(evt) {
 
-      }
+        onStateChangeHandler(evt, youTubeIframe);
 
-    });
+      });
+
+    }
 
   }
 
@@ -347,6 +376,38 @@
     } else if (typeof window._gaq !== 'undefined' && forceSyntax !== 1) {
 
       window._gaq.push(['_trackEvent', 'Videos', state, videoUrl]);
+
+    }
+
+  }
+
+  // Simple cross-browser event listener
+  function addEvent(el, name, fn) {
+
+    if (el.addEventListener) {
+
+      el.addEventListener(name, fn);
+
+    } else if (el.attachEvent) {
+
+      el.attachEvent('on' + name, function(evt) {
+
+        evt.target = evt.target || evt.srcElement;
+        // Call the event to ensure uniform 'this' handling, pass it event
+        fn.call(el, evt);
+
+      });
+
+    } else if (typeof el['on' + name] === 'undefined' || el['on' + evt] === null) {
+
+
+      el['on' + evt] = function(evt) {
+
+        evt.target = evt.target || evt.srcElement;
+        // Call the event to ensure uniform 'this' handling, pass it event
+        fn.call(el, evt);
+
+      };
 
     }
 
