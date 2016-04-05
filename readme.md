@@ -7,6 +7,47 @@ Once installed, the plugin will fire events with the following settings:
 - Event Action: *&lt;Action, e.g. Play, Pause&gt;*
 - Event Label: *&lt;URL of the video&gt;*
 
+If you have videos that are added to the DOM after DOM Ready, it will attempt to bind to those videos <strong>only if you have correctly set the origin and enablejsapi parameters on the src attribute</strong>, as below:
+
+    // Correct
+    <iframe id="player" src="https://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1&amp;origin=http%3A%2F%2Fwww.example.com"></iframe>    
+
+    // Failure: Missing origin
+    <iframe id="player" src="https://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1"></iframe>    
+
+    // Failure: Missing enablejsapi
+    <iframe id="player" src="https://www.youtube.com/embed/M7lc1UVf-VE?origin=http%3A%2F%2Fwww.example.com"></iframe>    
+
+    // Failure: Incorrectly formatted origin
+    <iframe id="player" src="https://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1&amp;origin=%2F%2Fwww.example.com"></iframe>    
+
+If you're appending the player programmatically, just detect and append them if missing:
+
+    function addPlayer(videoUrl) {
+      
+      var iframe = document.createElement('iframe');
+
+      if (videoUrl.indexOf('origin') === -1) {
+
+        var origin = window.location.protocol + '//' + window.location.hostname;
+        videoUrl += '&origin=' + encodeURIComponent(origin);
+
+      }
+
+      if (videoUrl.indexOf('enablejsapi') === -1) {
+
+        videoUrl += '&enablejsapi=1';
+
+      }
+
+      iframe.src = videoUrl;
+
+      ...
+
+    }
+
+If you're using the YT.Player constructor to add your video player, it will do it automagically.
+
 ## Installation
 
 This plugin will play nicely with any other existing plugin that interfaces with the YouTube Iframe API, so long as it is loaded after any existing code. Otherwise, if another function overwrites the window.onYouTubeIframeAPIReady property, it will fail silently. If you're seeing strange errors like 'getVideoUrl' is not a function, there is another script causing a collision that you must remedy.
