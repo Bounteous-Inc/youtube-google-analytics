@@ -2,6 +2,33 @@
 
   'use strict';
 
+  var _config = config || {};
+  var forceSyntax = _config.forceSyntax || 0;
+  var dataLayerName = _config.dataLayerName || 'dataLayer';
+  // Default configuration for events
+  var eventsFired = {
+    'Play': true,
+    'Pause': true,
+    'Watch to End': true
+  };
+  var key;
+
+  // Fetches YouTube JS API
+  var tag = document.createElement('script');
+  tag.src = '//www.youtube.com/iframe_api';
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  for (key in _config.events) {
+
+    if (_config.events.hasOwnProperty(key)) {
+
+      eventsFired[key] = _config.events[key];
+
+    }
+
+  }
+
   window.onYouTubeIframeAPIReady = (function() {
 
     var cached = window.onYouTubeIframeAPIReady;
@@ -34,45 +61,19 @@
 
   })();
 
-  var _config = config || {};
-  var forceSyntax = _config.forceSyntax || 0;
-  var dataLayerName = _config.dataLayerName || 'dataLayer';
-  // Default configuration for events
-  var eventsFired = {
-    'Play': true,
-    'Pause': true,
-    'Watch to End': true
-  };
-
-  // Overwrites defaults with customizations, if any
-  var key;
-  for (key in _config.events) {
-
-    if (_config.events.hasOwnProperty(key)) {
-
-      eventsFired[key] = _config.events[key];
-
-    }
-
-  }
-
   // Invoked by the YouTube API when it's ready
   function init() {
 
-console.log('ran');
-    var iframes = document.getElementsByTagName('iframe');
-console.log(iframes);
-    var embeds = document.getElementsByTagName('embed');
+    var potentialVideos = getTagsAsArr_('iframe').concat(getTagsAsArr_('embed'));
+    digestPotentialVideos(potentialVideos);
 
-    digestPotentialVideos(iframes);
-    digestPotentialVideos(embeds);
+    // CAPTURE NOT SUPPORTED BY IE8
+    if ('addEventListener' in document) { 
+      document.addEventListener('load', bindToNewVideos_, true);
+    }
+
 
   }
-
-  var tag = document.createElement('script');
-  tag.src = '//www.youtube.com/iframe_api';
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
   // Take our videos and turn them into trackable videos with events
   function digestPotentialVideos(potentialVideos) {
@@ -408,6 +409,28 @@ console.log(iframes);
         fn.call(el, evt);
 
       };
+
+    }
+
+  }
+
+  // Returns array of elements with given tag name
+  function getTagsAsArr_(tagName) {
+
+    return [].slice.call(document.getElementsByTagName(tagName));
+
+  }
+
+  function bindToNewVideos_(evt) {
+
+    var el = evt.target || evt.srcElement;
+    var isYT = checkIfYouTubeVideo(el);
+
+    // We only bind to iframes with a YouTube URL with the enablejsapi=1 and 
+    // origin={{hostname}} parameters
+    if (el.tagName === 'IFRAME' && isYT && jsApiEnabled(el.src) && originEnabled(el.src)) {
+
+      addYouTubeEvents(el);
 
     }
 
