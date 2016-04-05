@@ -67,7 +67,7 @@
     var potentialVideos = getTagsAsArr_('iframe').concat(getTagsAsArr_('embed'));
     digestPotentialVideos(potentialVideos);
 
-    // CAPTURE NOT SUPPORTED BY IE8
+    // Will bind to dynamically added videos. CAPTURE NOT SUPPORTED BY IE8
     if ('addEventListener' in document) { 
       document.addEventListener('load', bindToNewVideos_, true);
     }
