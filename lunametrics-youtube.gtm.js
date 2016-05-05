@@ -1,4 +1,4 @@
-;(function(document, window, config) {
+(function(document, window, config) {
 
   'use strict';
 
@@ -51,9 +51,15 @@
       } else {
 
         // On IE8 this fires on window.load, all other browsers will fire when DOM ready
-        document.addEventListener ? 
-          addEvent(document, 'DOMContentLoaded', init) : 
+        if (document.addEventListener) {
+
+          addEvent(document, 'DOMContentLoaded', init);
+
+        } else {
+
           addEvent(window, 'load', init);
+
+        }
 
       }
 
