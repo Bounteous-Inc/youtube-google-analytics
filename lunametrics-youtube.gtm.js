@@ -73,7 +73,7 @@
     var potentialVideos = getTagsAsArr_('iframe').concat(getTagsAsArr_('embed'));
     digestPotentialVideos(potentialVideos);
 
-    // CAPTURE NOT SUPPORTED BY IE8
+    // Will bind to dynamically added videos. CAPTURE NOT SUPPORTED BY IE8
     if ('addEventListener' in document) { 
       document.addEventListener('load', bindToNewVideos_, true);
     }
@@ -213,7 +213,7 @@
     // For full support, we're handling Watch to End with percentage viewed
     if (_config.events['Watch to End']) {
 
-      marks['Watch to End'] = duration * 99 / 100;
+      marks['Watch to End'] = Math.min(duration - 3, Math.floor(duration * 0.99));
 
     }
 
@@ -259,11 +259,10 @@
 
   function checkCompletion(player, marks, videoId) {
 
-    var duration = player.getDuration();
     var currentTime = player.getCurrentTime();
-    var playbackRate = player.getPlaybackRate();
-    player[videoId] = player[videoId] || {};
     var key;
+
+    player[videoId] = player[videoId] || {};
 
     for (key in marks) {
 
@@ -286,7 +285,7 @@
     var targetVideoUrl = player.getVideoUrl();
     var targetVideoId = targetVideoUrl.match(/[?&]v=([^&#]*)/)[1]; // Extract the ID    
     var playerState = player.getPlayerState();
-    var duration = player.getDuration();
+    var duration = Math.floor(player.getDuration());
     var marks = getMarks(duration);
     var playerStatesIndex = {
       '1': 'Play',
@@ -405,10 +404,10 @@
 
       });
 
-    } else if (typeof el['on' + name] === 'undefined' || el['on' + evt] === null) {
+    } else if (typeof el['on' + name] === 'undefined' || el['on' + name] === null) {
 
 
-      el['on' + evt] = function(evt) {
+      el['on' + name] = function(evt) {
 
         evt.target = evt.target || evt.srcElement;
         // Call the event to ensure uniform 'this' handling, pass it event
