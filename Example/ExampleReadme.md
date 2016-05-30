@@ -9,5 +9,6 @@ Licensed under the Creative Commons 4.0 International Public License. Refer to t
 
 Example added by [Grant Kemp](http://www.connectedwindow.com/), a web and mobile app analytics geek.   For questions, please drop us a line here or [on our blog](http://connectedwindow.com/get-in-touch/).
 
-The code used for the page layout is by the awesome [Zurb Foundation](http://foundation.zurb.com/)
+The code used for the page layout is by the awesome [Bootrap](http://getbootstrap.com/)
+This code is designed to work with the fantastic Youtube Tracking plugin by the brill [lunametrics team](http://www.lunametrics.com/)
 
