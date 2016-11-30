@@ -274,7 +274,7 @@ Create your Google Analytics Event tag
 
 ## License
 
-Licensed under the Creative Commons 4.0 International Public License. Refer to the LICENSE.MD file in the repository for the complete text of the license.
+Licensed under the MIT License. For a complete copy of the license, please refer to the LICENSE.md file included with this repository.
 
 ## Acknowledgements
 
