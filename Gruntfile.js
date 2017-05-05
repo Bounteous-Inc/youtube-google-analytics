@@ -14,7 +14,11 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      files: ['./src/lunametrics-youtube.gtm.js']
+      ignore_warning: {
+        options: {
+        },
+        src: ['./src/*.js']
+      }
     },
     uglify: {
       options: {
