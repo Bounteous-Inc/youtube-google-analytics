@@ -269,7 +269,7 @@
       if (marks[key] <= currentTime && !player[videoId][key]) {
 
         player[videoId][key] = true;
-        fireAnalyticsEvent(videoId, key);
+        fireAnalyticsEvent(videoId, key, player.getVideoData().title);
 
       }
 
@@ -347,14 +347,14 @@
     // If we're meant to track this event, fire it
     if (eventsFired[state]) {
 
-      fireAnalyticsEvent(youTubeIframe.videoId, state);
+      fireAnalyticsEvent(youTubeIframe.videoId, state, player.getVideoData().title);
 
     }
 
   }
 
   // Fire an event to Google Analytics or Google Tag Manager
-  function fireAnalyticsEvent(videoId, state) {
+  function fireAnalyticsEvent(videoId, state, videoTitle) {
 
     var videoUrl = 'https://www.youtube.com/watch?v=' + videoId;
     var _ga = window.GoogleAnalyticsObject;
@@ -367,7 +367,8 @@
         'attributes': {
 
           'videoUrl': videoUrl,
-          'videoAction': state
+          'videoAction': state,
+          'videoTitle': videoTitle
 
         }
 
