@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DanWilkerson/youtube-google-analytics.git"
+    "url": "git+https://github.com/LunaMetrics/youtube-google-analytics.git"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
@@ -19,7 +19,7 @@
   "author": "LunaMetrics, LLC",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DanWilkerson/youtube-google-analytics/issues"
+    "url": "https://github.com/LunaMetrics/youtube-google-analytics/issues"
   },
-  "homepage": "https://github.com/DanWilkerson/youtube-google-analytics#readme"
+  "homepage": "https://github.com/LunaMetrics/youtube-google-analytics#readme"
 }
