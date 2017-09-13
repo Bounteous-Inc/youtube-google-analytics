@@ -1,5 +1,7 @@
 # YouTube Google Analytics & GTM Plugin
 
+<strong>As of 9/12/17, Google Tag Manager offers native support for tracking YouTube videos (including proper titles!). If you're looking to use GTM to track YouTube videos, we'd recommend using their native integration over our script.</strong>
+
 This is a plug-and-play tracking solution for tracking user interaction with YouTube videos in Google Analytics. It will detect if GTM, Universal Analytics, or Classic Analytics is installed on the page, in that order, and use the first syntax it matches unless configured otherwise. It include support for delivering hits directly to Universal or Classic Google Analytics, or for pushing Data Layer events to be used by Google Tag Manager.
 
 Once installed, the plugin will fire events with the following settings:
