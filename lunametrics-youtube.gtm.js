@@ -1,6 +1,8 @@
 (function(document, window, config) {
 
   'use strict';
+	// This script won't work on IE 6 or 7, so we bail at this point if we detect that UA
+	if (navigator.userAgent.match(/MSIE [67]\./gi)) return;
 
   var _config = config || {};
   var forceSyntax = _config.forceSyntax || 0;
@@ -11,13 +13,9 @@
     'Pause': true,
     'Watch to End': true
   };
+	var firstScriptTag;
+	var tag;
   var key;
-
-  // Fetches YouTube JS API
-  var tag = document.createElement('script');
-  tag.src = '//www.youtube.com/iframe_api';
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
   for (key in _config.events) {
 
@@ -29,57 +27,67 @@
 
   }
 
-  window.onYouTubeIframeAPIReady = (function() {
+	if (window.YT) {
 
-    var cached = window.onYouTubeIframeAPIReady;
+		init();	
 
-    return function() {
+	} else {
 
-      if (cached) {
+		// Fetches YouTube JS API
+		tag = document.createElement('script');
+		tag.src = '//www.youtube.com/iframe_api';
+		firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        cached.apply(this, arguments);
+		window.onYouTubeIframeAPIReady = (function(o) {
 
-      }
+			return function() {
 
-      // This script won't work on IE 6 or 7, so we bail at this point if we detect that UA
-      if (navigator.userAgent.match(/MSIE [67]\./gi)) return;
+				if (o) o.apply(this, arguments);
 
-      if (document.readyState !== 'loading') {
+				init();
 
-        init();
+			};	
 
-      } else {
+		})(window.onYouTubeIframeAPIReady);
 
-        // On IE8 this fires on window.load, all other browsers will fire when DOM ready
-        if (document.addEventListener) {
-
-          addEvent(document, 'DOMContentLoaded', init);
-
-        } else {
-
-          addEvent(window, 'load', init);
-
-        }
-
-      }
-
-    };
-
-  })();
+	}
 
   // Invoked by the YouTube API when it's ready
   function init() {
 
+		if (document.readyState !== 'loading') {
+
+			bind();
+
+		} else {
+
+			// On IE8 this fires on window.load, all other browsers will fire when DOM ready
+			if ('addEventListener' in document) {
+
+				addEvent(document, 'DOMContentLoaded', bind);
+
+			} else {
+
+				addEvent(window, 'load', bind);
+
+			}
+
+		}
+
+  }
+
+	function bind() {
+
     var potentialVideos = getTagsAsArr_('iframe').concat(getTagsAsArr_('embed'));
     digestPotentialVideos(potentialVideos);
 
-    // Will bind to dynamically added videos. CAPTURE NOT SUPPORTED BY IE8
+    // Will bind to dynamically added videos
     if ('addEventListener' in document) { 
       document.addEventListener('load', bindToNewVideos_, true);
     }
 
-
-  }
+	}
 
   // Take our videos and turn them into trackable videos with events
   function digestPotentialVideos(potentialVideos) {
@@ -475,7 +483,7 @@
  * Tells script to use custom dataLayer name instead of default
  */
 /*
- * v8.1.3
+ * v8.1.4
  * Created by the Google Analytics consultants at http://www.lunametrics.com
  * Written by @SayfSharif and @notdanwilkerson
  * Documentation: https://github.com/lunametrics/youtube-google-analytics/
