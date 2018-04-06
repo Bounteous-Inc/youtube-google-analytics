@@ -113,9 +113,12 @@
   function checkIfYouTubeVideo(potentialYouTubeVideo) {
 
     var potentialYouTubeVideoSrc = potentialYouTubeVideo.src || '';
+    var dataSrc = potentialYouTubeVideo.getAttribute('data-src') || '';
 
     if (potentialYouTubeVideoSrc.indexOf('youtube.com/embed/') > -1 ||
-      potentialYouTubeVideoSrc.indexOf('youtube.com/v/') > -1) {
+      potentialYouTubeVideoSrc.indexOf('youtube.com/v/') > -1 ||
+      dataSrc.indexOf('youtube.com/embed/') > -1 ||
+      dataSrc.indexOf('youtube.com/v/') > -1) {
 
       return true;
 
@@ -142,7 +145,7 @@
 
     var loc = window.location;
     var a = document.createElement('a');
-    a.href = youTubeVideo.src;
+    a.href = youTubeVideo.getAttribute('data-src') || youTubeVideo.src;
     a.hostname = 'www.youtube.com';
     a.protocol = loc.protocol;
     var tmpPathname = a.pathname.charAt(0) === '/' ? a.pathname : '/' + a.pathname; // IE10 shim
