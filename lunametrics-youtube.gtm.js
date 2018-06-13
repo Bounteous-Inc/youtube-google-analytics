@@ -203,7 +203,7 @@
 
     }
 
-    if (typeof youTubeIframe.pauseFlag === 'undefined') { 
+    if (typeof player.getPlayerState ==='function' && typeof youTubeIframe.pauseFlag === 'undefined') { 
 
       youTubeIframe.pauseFlag = false;
       player.addEventListener('onStateChange', function(evt) {
