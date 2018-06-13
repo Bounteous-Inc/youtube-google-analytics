@@ -146,8 +146,6 @@
     var loc = window.location;
     var a = document.createElement('a');
     a.href = youTubeVideo.getAttribute('data-src') || youTubeVideo.src;
-    a.hostname = 'www.youtube.com';
-    a.protocol = loc.protocol;
     var tmpPathname = a.pathname.charAt(0) === '/' ? a.pathname : '/' + a.pathname; // IE10 shim
 
     // For security reasons, YouTube wants an origin parameter set that matches our hostname
